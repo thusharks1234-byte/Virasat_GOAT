@@ -265,6 +265,51 @@ function App() {
   const [lang, setLang] = useState<string>('en');
   const [isChaptersOpen, setIsChaptersOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+
+  // Authentication State & Session Persistence
+  const [authTab, setAuthTab] = useState<'signin' | 'signup' | 'profile'>('signin');
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      const raw = localStorage.getItem('virasat_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [authEmail, setAuthEmail] = useState<string>('');
+  const [authPassword, setAuthPassword] = useState<string>('');
+  const [authFullName, setAuthFullName] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [authFeedback, setAuthFeedback] = useState<{ text: string; type: 'info' | 'success' | 'error' } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const saveUserSession = (user: any, token: string | null = null) => {
+    if (user) {
+      localStorage.setItem('virasat_user', JSON.stringify(user));
+      if (token) localStorage.setItem('virasat_token', token);
+      setCurrentUser(user);
+    } else {
+      localStorage.removeItem('virasat_user');
+      localStorage.removeItem('virasat_token');
+      setCurrentUser(null);
+    }
+  };
+
+  // Feature Access Guard: only allow logged in users to access features, else redirect to sign in
+  const handleFeatureAccess = (callback: () => void) => {
+    if (!currentUser) {
+      setIsChaptersOpen(false);
+      setAuthTab('signin');
+      setAuthFeedback({
+        text: 'Please sign in or create an account to access Virasat features.',
+        type: 'info'
+      });
+      setIsAuthOpen(true);
+      return;
+    }
+    callback();
+  };
+
   const [isArchiveOpen, setIsArchiveOpen] = useState<boolean>(false);
   const [isKathakarOpen, setIsKathakarOpen] = useState<boolean>(false);
   const [isLipikaOpen, setIsLipikaOpen] = useState<boolean>(false);
@@ -395,9 +440,11 @@ function App() {
   };
 
   const openLipika = () => {
-    setIsChaptersOpen(false);
-    setIsLipikaOpen(true);
-    setLipikaError('');
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsLipikaOpen(true);
+      setLipikaError('');
+    });
   };
 
   const closeLipika = () => {
@@ -483,9 +530,11 @@ function App() {
   useEffect(() => () => stopLipikaCamera(), []);
 
   const openQuestPassport = () => {
-    setIsChaptersOpen(false);
-    setIsQuestOpen(true);
-    setQuestError('');
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsQuestOpen(true);
+      setQuestError('');
+    });
   };
 
   const closeQuestPassport = () => setIsQuestOpen(false);
@@ -521,7 +570,13 @@ function App() {
     setQuestCollectedStops((count) => Math.min(count + 1, questData.stops.length));
   };
 
-  const openForecast = () => { setIsChaptersOpen(false); setIsForecastOpen(true); setForecastError(''); };
+  const openForecast = () => {
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsForecastOpen(true);
+      setForecastError('');
+    });
+  };
   const closeForecast = () => setIsForecastOpen(false);
   const analyzeForecast = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -538,7 +593,13 @@ function App() {
     } finally { setIsForecastLoading(false); }
   };
 
-  const openCraftArchive = () => { setIsChaptersOpen(false); setIsCraftOpen(true); setCraftError(''); };
+  const openCraftArchive = () => {
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsCraftOpen(true);
+      setCraftError('');
+    });
+  };
   const closeCraftArchive = () => setIsCraftOpen(false);
   const discoverCraft = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -555,7 +616,13 @@ function App() {
     } finally { setIsCraftLoading(false); }
   };
 
-  const openFestivalCalendar = () => { setIsChaptersOpen(false); setIsFestivalOpen(true); setFestivalError(''); };
+  const openFestivalCalendar = () => {
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsFestivalOpen(true);
+      setFestivalError('');
+    });
+  };
   const closeFestivalCalendar = () => setIsFestivalOpen(false);
   const discoverFestival = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -572,7 +639,13 @@ function App() {
     } finally { setIsFestivalLoading(false); }
   };
 
-  const openTryOn = () => { setIsChaptersOpen(false); setIsTryOnOpen(true); setTryOnError(''); };
+  const openTryOn = () => {
+    handleFeatureAccess(() => {
+      setIsChaptersOpen(false);
+      setIsTryOnOpen(true);
+      setTryOnError('');
+    });
+  };
   const closeTryOn = () => setIsTryOnOpen(false);
 
   const handleTryOnFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -653,36 +726,6 @@ function App() {
         ? 'The image service could not be reached. Your styling prompt is ready; retry when the service is available.'
         : error instanceof Error ? error.message : 'The heritage visual could not be generated.');
     } finally { setIsTryOnVisualLoading(false); }
-  };
-
-  // Authentication State
-  const [authTab, setAuthTab] = useState<'signin' | 'signup' | 'profile'>('signin');
-  const [currentUser, setCurrentUser] = useState<any>(() => {
-    try {
-      const raw = localStorage.getItem('virasat_user');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [authEmail, setAuthEmail] = useState<string>('');
-  const [authPassword, setAuthPassword] = useState<string>('');
-  const [authFullName, setAuthFullName] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [authFeedback, setAuthFeedback] = useState<{ text: string; type: 'info' | 'success' | 'error' } | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  // Session persistence helper
-  const saveUserSession = (user: any, token: string | null = null) => {
-    if (user) {
-      localStorage.setItem('virasat_user', JSON.stringify(user));
-      if (token) localStorage.setItem('virasat_token', token);
-      setCurrentUser(user);
-    } else {
-      localStorage.removeItem('virasat_user');
-      localStorage.removeItem('virasat_token');
-      setCurrentUser(null);
-    }
   };
 
   // Sign In Handler
@@ -841,6 +884,15 @@ function App() {
       await supabase?.auth.signOut();
     } catch {}
     saveUserSession(null);
+    setIsChaptersOpen(false);
+    setIsArchiveOpen(false);
+    setIsKathakarOpen(false);
+    setIsLipikaOpen(false);
+    setIsQuestOpen(false);
+    setIsForecastOpen(false);
+    setIsCraftOpen(false);
+    setIsFestivalOpen(false);
+    setIsTryOnOpen(false);
     setAuthFeedback({ text: '✓ You have been signed out.', type: 'success' });
     setTimeout(() => {
       setAuthTab('signin');
@@ -1044,7 +1096,15 @@ function App() {
                   <a href="#cinema">{t.navHome}</a>
                   <a href="#cinema">{t.navAbout}</a>
                   <a href="#cinema">{t.navGallery}</a>
-                  <a href="#cinema">{t.navFeatures}</a>
+                  <a
+                    href="#features"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleFeatureAccess(() => setIsChaptersOpen(true));
+                    }}
+                  >
+                    {t.navFeatures}
+                  </a>
                 </nav>
 
                 <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px', justifySelf: 'end' }}>
@@ -1084,7 +1144,7 @@ function App() {
                   {/* Chapters Menu Trigger Button */}
                   <button
                     className="chapters-trigger-btn"
-                    onClick={() => setIsChaptersOpen(true)}
+                    onClick={() => handleFeatureAccess(() => setIsChaptersOpen(true))}
                     aria-label="Open chapters menu"
                   >
                     <span></span><span></span><span></span>
@@ -1247,8 +1307,10 @@ function App() {
               className="chapter-card"
               data-chapter="1"
               onClick={() => {
-                setIsChaptersOpen(false);
-                setIsArchiveOpen(true);
+                handleFeatureAccess(() => {
+                  setIsChaptersOpen(false);
+                  setIsArchiveOpen(true);
+                });
               }}
             >
               <span className="chapter-num">{t.chap1Num}</span>
@@ -1262,8 +1324,10 @@ function App() {
               className="chapter-card"
               data-chapter="2"
               onClick={() => {
-                setIsChaptersOpen(false);
-                setIsKathakarOpen(true);
+                handleFeatureAccess(() => {
+                  setIsChaptersOpen(false);
+                  setIsKathakarOpen(true);
+                });
               }}
             >
               <span className="chapter-num">{t.chap2Num}</span>

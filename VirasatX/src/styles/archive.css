@@ -25,7 +25,8 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background-color: var(--vx-bg-dark);
+  background: linear-gradient(180deg, rgba(11, 17, 16, 0.78) 0%, rgba(9, 14, 13, 0.86) 100%),
+              url('https://raft-blast-61784561.figma.site/_assets/v11/864afe00e41e2fa20a5aa546e15cb807e0f81384.png') center/cover no-repeat fixed;
   color: var(--vx-paper);
   font-family: var(--vx-font-sans);
   display: flex;
