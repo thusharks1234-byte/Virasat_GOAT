@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virasat | Indian Heritage</title>
+  <link rel="icon" type="image/png" href="logo.png?v=2" />
+  <link rel="shortcut icon" type="image/png" href="logo.png?v=2" />
+  <link rel="apple-touch-icon" href="logo.png?v=2" />
+  <link rel="stylesheet" href="styles.css?v=30" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="env.js"></script>
+  <script src="script_main.js?v=30" defer></script>
+</head>
+<body>
+<div id="app-loading-container">
+  <div class="loader-film-strip top"></div>
+  <div class="loader-text">loading</div>
+  <div class="loader-film-strip bottom"></div>
+</div>
+<main class="site-shell">
+  <section class="cinema-scroll" id="cinema" aria-label="Virasat cinematic scroll story">
+    <div class="stage">
+      <div class="world">
+        <img class="scene-img sky-img" src="https://raft-blast-61784561.figma.site/_assets/v11/16b5007d9c93971e26ffe4e0e3e37946f6bd538c.png" alt="">
+        <header class="site-header" aria-label="Primary navigation">
+          <a class="site-logo" href="#cinema" style="display: flex; align-items: center; gap: 8px;">
+            <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" alt="Indian Flag" style="width: 24px; height: 16px; object-fit: cover; border-radius: 2px;">
+            <span data-i18n="logo">INDIA</span>
+          </a>
+          
+          <nav class="site-nav" aria-label="Main menu">
+            <a href="#cinema" data-i18n="navHome">Home</a>
+            <a href="#cinema" data-i18n="navAbout">About</a>
+            <a href="#cinema" data-i18n="navGallery">Gallery</a>
+            <a href="#cinema" data-i18n="navFeatures">Features</a>
+          </nav>
+          
+          <div class="header-right" style="display: flex; align-items: center; gap: 20px; justify-self: end;">
+            <div id="header-user-status" style="display: flex; align-items: center;">
+              <button class="header-auth-btn" id="header-auth-trigger" aria-label="Account / Sign In">
+                <span class="auth-btn-icon">👤</span>
+                <span class="auth-btn-text" id="header-auth-label">Sign In</span>
+              </button>
+            </div>
+
+            <div class="language-dropdown-container">
+              <button class="language-switcher" aria-label="Change language">
+                <span id="current-lang">EN</span><span aria-hidden="true">⌄</span>
+              </button>
+              <div class="language-menu">
+                <button data-lang="en">English</button>
+                <button data-lang="hi">हिन्दी (Hindi)</button>
+                <button data-lang="kn">ಕನ್ನಡ (Kannada)</button>
+                <button data-lang="pa">ਪੰਜਾਬੀ (Punjabi)</button>
+                <button data-lang="hr">हरियाणवी (Haryanvi)</button>
+              </div>
+            </div>
+            
+            <button class="chapters-trigger-btn" id="open-chapters" aria-label="Open chapters menu">
+              <span></span><span></span><span></span>
+            </button>
+          </div>
+        </header>
+
+        <div class="back-stack">
+          <img class="scene-img back-img back-four" src="https://raft-blast-61784561.figma.site/_assets/v11/8a7f8af50e0ce92ec2e228e7b0b4112178c51cf1.png" alt="">
+          <section class="sights-slider" aria-label="Heritage sights slider">
+            <div class="sights-track">
+              <!-- Card 1 -->
+              <article class="sight-card" tabindex="0" role="button">
+                <span class="sight-kicker" data-i18n="card1Kicker">Timeless Architecture</span>
+                <img class="sight-pin" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260730_230438_d526b8b6-8a2e-4e3b-9993-3908acae03a7.png" alt="">
+                <h3 class="sight-title" data-i18n="card1Title">Temples of Hampi</h3>
+                <p class="sight-desc" data-i18n="card1Desc">Stone chariots and monolithic ruins echoing the glory of the Vijayanagara Empire.</p>
+              </article>
+              <!-- Card 2 -->
+              <article class="sight-card" tabindex="0" role="button">
+                <span class="sight-kicker" data-i18n="card2Kicker">Spiritual Heart</span>
+                <img class="sight-pin" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260730_230442_140bc25b-b165-4249-904a-f708bff6970e.png" alt="">
+                <h3 class="sight-title" data-i18n="card2Title">Varanasi Ghats</h3>
+                <p class="sight-desc" data-i18n="card2Desc">The world's oldest living city, where ancient rituals meet the sacred Ganges.</p>
+              </article>
+              <!-- Card 3 -->
+              <article class="sight-card" tabindex="0" role="button">
+                <span class="sight-kicker" data-i18n="card3Kicker">Royal Legacy</span>
+                <img class="sight-pin" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260730_230448_825949c9-ccdb-4857-b4a6-e349eccc9010.png" alt="">
+                <h3 class="sight-title" data-i18n="card3Title">Rajputana Forts</h3>
+                <p class="sight-desc" data-i18n="card3Desc">Impregnable hill forts in Rajasthan featuring intricate palaces and sweeping views.</p>
+              </article>
+              <!-- Card 4 -->
+              <article class="sight-card" tabindex="0" role="button">
+                <span class="sight-kicker" data-i18n="card4Kicker">Living Arts</span>
+                <img class="sight-pin" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260730_230438_d526b8b6-8a2e-4e3b-9993-3908acae03a7.png" alt="">
+                <h3 class="sight-title" data-i18n="card4Title">Classical Traditions</h3>
+                <p class="sight-desc" data-i18n="card4Desc">From Bharatanatyam to ancient copper craft, a culture that lives and breathes today.</p>
+              </article>
+              <!-- Card 5 -->
+              <article class="sight-card" tabindex="0" role="button">
+                <span class="sight-kicker" data-i18n="card5Kicker">Natural Heritage</span>
+                <img class="sight-pin" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260730_230442_140bc25b-b165-4249-904a-f708bff6970e.png" alt="">
+                <h3 class="sight-title" data-i18n="card5Title">Kerala Backwaters</h3>
+                <p class="sight-desc" data-i18n="card5Desc">An interconnected network of ancient trade routes and serene ecological harmony.</p>
+              </article>
+            </div>
+          </section>
+          <img class="scene-img back-img back-tradition" src="https://raft-blast-61784561.figma.site/_assets/v11/864afe00e41e2fa20a5aa546e15cb807e0f81384.png" alt="">
+        </div>
+        
+        <div class="sights-controls" aria-label="Slider controls">
+          <button class="sight-nav sight-prev" aria-label="Previous sight">←</button>
+          <button class="sight-nav sight-next" aria-label="Next sight">→</button>
+        </div>
+        
+        <h1 class="hero-title" data-i18n="heroTitle">VIRASAT</h1>
+        
+        <img class="scene-img splitframe-img splitframe-left" src="https://raft-blast-61784561.figma.site/_assets/v11/7536d7b60a1fce482cf6edf3f0bffd3bad5d0f8a.png" alt="">
+        <img class="scene-img splitframe-img splitframe-right" src="https://raft-blast-61784561.figma.site/_assets/v11/392db6a6a6b98e868bd7f8d3f55bb719d51e5028.png" alt="">
+        <img class="scene-img monument-img" src="https://raft-blast-61784561.figma.site/_assets/v11/c6a6d8ef49bca43f708aa852692942c45ec950d4.png" alt="">
+        <img class="scene-img frame-two-img" src="https://raft-blast-61784561.figma.site/_assets/v11/ba75252bab2b1c510987b74837770f7bc8a6b2d4.png" alt="">
+        <div class="shade"></div>
+      </div>
+
+      <section class="intro-copy" aria-label="Virasat overview">
+        <p data-i18n="introText">A vibrant tapestry of ancient stone, sweeping landscapes, and unbroken living traditions shaping a breathtaking cultural journey across the Indian subcontinent.</p>
+        <div class="hero-tags" aria-label="Virasat highlights">
+          <span data-i18n="tag1">Ancient Heritage</span>
+          <span data-i18n="tag2">Living Arts</span>
+          <span data-i18n="tag3">Spiritual Journey</span>
+        </div>
+        <button class="get-started-btn" id="open-auth" data-i18n="getStarted">Get Started</button>
+      </section>
+      
+      <section class="story-panel story-panel-bridge">
+        <h2 data-i18n="panel1Title">Stones that speak.</h2>
+        <p data-i18n="panel1Desc">India's monuments are architectural compasses bridging millennia of art, astronomy, and dynastic history.</p>
+      </section>
+      <section class="story-panel story-panel-bazaar">
+        <h2 data-i18n="panel2Title">The living pulse.</h2>
+        <p data-i18n="panel2Desc">Culture here is not just observed in museums; it is experienced in every street, festival, and artisan's craft.</p>
+      </section>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-headline">
+        <h2>Empowering Immersive<br>Heritage Journeys</h2>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <a href="#">Platform</a>
+          <a href="#">Technology</a>
+          <a href="#">Blockchain ID</a>
+          <a href="#">Analytics</a>
+          <a href="#">Partners</a>
+        </div>
+        <div class="footer-col">
+          <a href="#">About Us</a>
+          <a href="#">News</a>
+          <a href="#">Careers</a>
+          <a href="#">Contact Us</a>
+        </div>
+        <div class="footer-col">
+          <a href="#">LinkedIn</a>
+          <a href="#">Follow Us on X</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-divider"></div>
+    <div class="footer-pattern"></div>
+    
+    <div class="footer-bottom">
+      <div class="footer-logo-wrapper">
+        <img class="footer-logo-icon" src="logo.png" alt="Virasat Logo" style="border-radius: 50%; object-fit: cover; background: transparent;">
+        <span class="footer-logo-text">Virasat</span>
+      </div>
+      <div class="footer-legal">
+        <span>© 2026 Virasat. All rights reserved.</span>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <span>Designed for <strong>SIH</strong></span>
+      </div>
+    </div>
+  </footer>
+</main>
+<div class="chapters-modal-overlay" id="chapters-modal">
+  <div class="chapters-modal-container">
+    <button class="chapters-close-btn" id="close-chapters">×</button>
+    <div class="chapters-header">
+      <span class="chapters-subtitle" data-i18n="chaptersSubtitle">VIRASAT JOURNEY</span>
+      <h2 data-i18n="chaptersTitle">EXPLORE THE CHAPTERS</h2>
+    </div>
+    <div class="chapters-stack">
+      <!-- Chapter 1 -->
+      <div class="chapter-card" data-chapter="1">
+        <span class="chapter-num" data-i18n="chap1Num">CHAPTER 01</span>
+        <h3 data-i18n="chap1Title">The Archive of Monuments</h3>
+        <p data-i18n="chap1Desc">Interactive 3D structural mapping and historical reconstruction of India's architectural marvels.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 2 -->
+      <div class="chapter-card" data-chapter="2">
+        <span class="chapter-num" data-i18n="chap2Num">CHAPTER 02</span>
+        <h3 data-i18n="chap2Title">Kathakar AI Guide</h3>
+        <p data-i18n="chap2Desc">Conversational lore and historical narratives powered by Google Gemini, speaking fluent local folklore.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 3 -->
+      <div class="chapter-card" data-chapter="3">
+        <span class="chapter-num" data-i18n="chap3Num">CHAPTER 03</span>
+        <h3 data-i18n="chap3Title">Lipika Script Lens</h3>
+        <p data-i18n="chap3Desc">Real-time optical character recognition decoding ancient Brahmi, Pali, and Sanskrit stone inscriptions.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 4 -->
+      <div class="chapter-card" data-chapter="4">
+        <span class="chapter-num" data-i18n="chap4Num">CHAPTER 04</span>
+        <h3 data-i18n="chap4Title">Blockchain Yatra Passports</h3>
+        <p data-i18n="chap4Desc">Cryptographic digital stamps and NFTs verifying your journey across India's cultural corridors.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 5 -->
+      <div class="chapter-card" data-chapter="5">
+        <span class="chapter-num">CHAPTER 05</span>
+        <h3>Tirth-Yatra Crowd Forecast</h3>
+        <p>Predictive analytics engine estimating live foot traffic and optimal visiting hours for congested temples and historical shrines.</p>
+        <span class="chapter-explore">EXPLORE →</span>
+      </div>
+      <!-- Chapter 6 -->
+      <div class="chapter-card" data-chapter="6">
+        <span class="chapter-num" data-i18n="chap6Num">CHAPTER 06</span>
+        <h3 data-i18n="chap6Title">Vyanjan Spice Route Scanner</h3>
+        <p data-i18n="chap6Desc">AI computer vision breaking down regional culinary history and ancient spice trade origins.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 7 -->
+      <div class="chapter-card" data-chapter="7">
+        <span class="chapter-num" data-i18n="chap7Num">CHAPTER 07</span>
+        <h3 data-i18n="chap7Title">Parampara Lore Quests</h3>
+        <p data-i18n="chap7Desc">Geo-fenced gamified heritage exploration unlocking digital rewards and local artisan discounts.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+      <!-- Chapter 8 -->
+      <div class="chapter-card" data-chapter="8">
+        <span class="chapter-num" data-i18n="chap8Num">CHAPTER 08</span>
+        <h3 data-i18n="chap8Title">Kala-Kriti Digital Try-On</h3>
+        <p data-i18n="chap8Desc">AR body segmentation allowing tourists to digitally drape regional handloom textiles and weaves.</p>
+        <span class="chapter-explore" data-i18n="exploreBtn">EXPLORE →</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Auth / Menu Modal Overlay (Produx Inspired) -->
+<div class="auth-modal-overlay" id="auth-modal">
+  <div class="auth-modal-header">
+    <div class="auth-logo">VIRASAT</div>
+    <button class="auth-close-btn" id="close-auth" data-i18n="authClose">[ CLOSE ]</button>
+  </div>
+  
+  <div class="auth-modal-content">
+    <div class="auth-left">
+      <nav class="auth-nav">
+        <a href="#" data-i18n="authWork">Work</a>
+        <a href="#" data-i18n="authStudio">Studio</a>
+        <a href="#" data-i18n="authLab">Lab</a>
+        <a href="#" data-i18n="authContact">Contact</a>
+      </nav>
+    </div>
+    
+    <div class="auth-right">
+      <div class="auth-form-container">
+        <img src="https://raft-blast-61784561.figma.site/_assets/v11/8a7f8af50e0ce92ec2e228e7b0b4112178c51cf1.png" alt="Join Virasat" class="auth-image" style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 4px; object-fit: contain; border: 1px solid rgba(255,255,255,0.05);">
+        
+        <!-- Auth Tab Navigation Buttons -->
+        <div class="auth-tabs" id="auth-tabs-bar">
+          <button type="button" class="auth-tab-btn active" id="tab-btn-signin" data-tab="signin">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tab-btn-signup" data-tab="signup">Sign Up</button>
+          <button type="button" class="auth-tab-btn" id="tab-btn-join" data-tab="join">Waitlist</button>
+        </div>
+
+        <!-- 1. SIGN IN FORM -->
+        <div class="auth-tab-panel active" id="panel-signin">
+          <h3 id="auth-panel-title">Sign In to Virasat</h3>
+          <p id="auth-panel-desc">Access your synced passport, stamps, and heritage explorations.</p>
+          
+          <form class="auth-form" id="virasat-signin-form" onsubmit="event.preventDefault();">
+            <div class="auth-input-group">
+              <label for="virasat-signin-email">EMAIL ADDRESS</label>
+              <div class="input-wrapper">
+                <input type="email" id="virasat-signin-email" placeholder="explorer@virasat.org" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label for="virasat-signin-password">PASSWORD</label>
+              <div class="input-wrapper">
+                <input type="password" id="virasat-signin-password" placeholder="••••••••••••" required autocomplete="current-password">
+                <button type="button" class="pw-toggle-btn" id="toggle-signin-pw" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" id="virasat-signin-submit">
+              <span>Sign In to Virasat</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+
+            <div class="auth-switch-prompt">
+              <span>Don't have an account?</span>
+              <button type="button" class="auth-switch-link" id="switch-to-signup">Create one here</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 2. SIGN UP FORM -->
+        <div class="auth-tab-panel" id="panel-signup" style="display: none;">
+          <h3>Create Virasat Account</h3>
+          <p>Register to preserve cultural heritage & collect digital yatra stamps.</p>
+          
+          <form class="auth-form" id="virasat-signup-form" onsubmit="event.preventDefault();">
+            <div class="auth-input-group">
+              <label for="virasat-signup-name">FULL NAME</label>
+              <div class="input-wrapper">
+                <input type="text" id="virasat-signup-name" placeholder="Likith Reddy" required autocomplete="name">
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label for="virasat-signup-email">EMAIL ADDRESS</label>
+              <div class="input-wrapper">
+                <input type="email" id="virasat-signup-email" placeholder="explorer@virasat.org" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="auth-input-group">
+              <label for="virasat-signup-password">PASSWORD</label>
+              <div class="input-wrapper">
+                <input type="password" id="virasat-signup-password" placeholder="Min 6 characters" required autocomplete="new-password">
+                <button type="button" class="pw-toggle-btn" id="toggle-signup-pw" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" id="virasat-signup-submit">
+              <span>Create Account</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+
+            <div class="auth-switch-prompt">
+              <span>Already registered?</span>
+              <button type="button" class="auth-switch-link" id="switch-to-signin">Sign in to your account</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 3. QUICK JOIN / WAITLIST FORM -->
+        <div class="auth-tab-panel" id="panel-join" style="display: none;">
+          <h3 data-i18n="authJoinTitle">Join Virasat</h3>
+          <p data-i18n="authJoinDesc">Unlock personalized heritage journeys and artifacts.</p>
+          
+          <form class="auth-form" id="virasat-join-form" onsubmit="event.preventDefault();">
+            <div class="input-group">
+              <input type="email" id="virasat-auth-email" placeholder="EMAIL ADDRESS" required data-i18n="authEmail">
+              <button type="submit" id="virasat-auth-submit" aria-label="Submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 4. ACTIVE PROFILE PANEL (When Logged In) -->
+        <div class="auth-tab-panel" id="panel-profile" style="display: none;">
+          <div class="profile-card">
+            <div class="profile-avatar" id="profile-avatar-initial">U</div>
+            <div class="profile-info">
+              <h4 id="profile-user-name">Heritage Explorer</h4>
+              <p id="profile-user-email">explorer@virasat.org</p>
+              <div class="profile-badge">
+                <span class="badge-dot"></span>
+                <span>Supabase Authenticated</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="profile-stats">
+            <div class="stat-box">
+              <span class="stat-value" id="profile-stat-stamps">0</span>
+              <span class="stat-label">Yatra Stamps</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-value" id="profile-stat-quests">0</span>
+              <span class="stat-label">Lore Quests</span>
+            </div>
+          </div>
+
+          <button type="button" class="auth-signout-btn" id="virasat-auth-signout">
+            <span>Sign Out</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
+        </div>
+
+        <!-- Shared Feedback Alert Container -->
+        <div id="virasat-auth-feedback" class="auth-feedback"></div>
+        
+        <div class="auth-cookie-notice">
+          <div class="cookie-icon">🏛️</div>
+          <div class="cookie-text">
+            <strong data-i18n="authCookieTitle">A long time ago, in a browser far far away...</strong>
+            <p data-i18n="authCookieDesc">We use cookies to understand how the site performs – nothing sinister, no dark side stuff.</p>
+            <div class="cookie-actions">
+              <span class="cookie-accept" data-i18n="authCookieAccept">MAY THE COOKIES BE WITH YOU</span>
+              <span class="cookie-decline" data-i18n="authCookieDecline">I'LL PASS, THANKS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="auth-modal-footer">
+    <div class="auth-footer-links">
+      <a href="#" data-i18n="authPrivacy">PRIVACY POLICY</a>
+      <a href="#" data-i18n="authSupport">SUPPORT</a>
+    </div>
+    <div class="auth-footer-copyright">
+      © 2026 VIRASAT PLATFORM. ALL RIGHTS RESERVED.
+    </div>
+  </div>
+</div>
+<!-- Feature 1 Modal: Archive of Monuments -->
+<div class="feature-modal-overlay" id="feature-1-modal">
+  <div class="feature-modal-container">
+    <button class="feature-close-btn" id="close-feature-1">×</button>
+    
+    <div class="feature-header">
+      <span class="feature-tag">CHAPTER 01 MODULE</span>
+      <h2>The Archive of Monuments</h2>
+      <p>Select a historical site to inspect architectural blueprints, dynastic eras, and structural integrity modeling.</p>
+    </div>
+
+    <!-- Custom Monument Search Bar -->
+    <div class="custom-monument-search-box">
+      <input type="text" id="custom-monument-input" placeholder="Type any Indian monument (e.g., Mysore Palace, Ajanta Caves)..." />
+      <button id="custom-monument-btn">Generate Custom 3D Mesh ↗</button>
+    </div>
+
+    <div class="monument-grid">
+      <!-- Monument 1 -->
+      <div class="monument-item" data-name="Hampi Chariot" data-dynasty="Vijayanagara Empire (1565 CE)" data-material="Monolithic Granite">
+        <h3>Hampi Stone Chariot</h3>
+        <span class="mon_dynasty">Vijayanagara Empire</span>
+        <p>A shrine dedicated to Garuda carved from a single block of granite, representing peak symmetry.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 2 -->
+      <div class="monument-item" data-name="Konark Sun Temple" data-dynasty="Eastern Ganga Dynasty (1250 CE)" data-material="Khondalite Stone">
+        <h3>Konark Sun Temple</h3>
+        <span class="mon_dynasty">Eastern Ganga Dynasty</span>
+        <p>A colossal cosmic chariot of Surya with 24 intricate stone wheels functioning as exact sundials.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 3 -->
+      <div class="monument-item" data-name="Brihadeeswarar Temple" data-dynasty="Chola Dynasty (1010 CE)" data-material="Interlocking Granite">
+        <h3>Brihadeeswarar Temple</h3>
+        <span class="mon_dynasty">Chola Dynasty</span>
+        <p>An engineering marvel featuring an 80-tonne cupola capstone hoisted without mortar.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 4 -->
+      <div class="monument-item" data-name="Qutb Minar Tower" data-dynasty="Delhi Sultanate (1193 CE)" data-material="Red Sandstone & Marble">
+        <h3>Qutb Minar Tower</h3>
+        <span class="mon_dynasty">Delhi Sultanate</span>
+        <p>A 73-meter tapering victory tower featuring intricate Quranic inscriptions and flanged shaft balconies.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 5 -->
+      <div class="monument-item" data-name="Rani ki Vav Stepwell" data-dynasty="Chaulukya Dynasty (1060 CE)" data-material="Carved Sandstone">
+        <h3>Rani ki Vav Stepwell</h3>
+        <span class="mon_dynasty">Chaulukya Dynasty</span>
+        <p>An inverted temple architecture subterranean water resource decorated with over 500 major sculptures.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 6 -->
+      <div class="monument-item" data-name="Taj Mahal Mausoleum" data-dynasty="Mughal Empire (1653 CE)" data-material="Makrana White Marble">
+        <h3>Taj Mahal Mausoleum</h3>
+        <span class="mon_dynasty">Mughal Empire</span>
+        <p>A symmetrical masterpiece of white marble featuring pietra dura floral inlays and a majestic double dome.</p>
+        <button class="inspect-btn">Load 3D Wireframe</button>
+      </div>
+      <!-- Monument 7: Ellora Caves -->
+      <div class="monument-item" data-name="Ellora Caves (Kailasa Temple)" data-dynasty="Rashtrakuta Dynasty (756 CE)" data-material="Monolithic Basalt" data-tour="https://www.p4panorama.com/360-virtual-tour/ellora-caves/">
+        <h3>Ellora Caves</h3>
+        <span class="mon_dynasty">Rashtrakuta Dynasty</span>
+        <p>Cave 16 Kailasa Temple carved top-down from a single cliff. Explore 360° virtual tour.</p>
+        <div style="display: flex; gap: 6px; margin-top: 8px;">
+          <button class="inspect-btn" style="flex: 1;">3D Wireframe</button>
+          <a href="https://www.p4panorama.com/360-virtual-tour/ellora-caves/" target="_blank" class="inspect-btn" style="flex: 1; text-align: center; text-decoration: none; background: rgba(212,114,44,0.3); border-color: var(--gold, #d4722c); color: #fff;">360° Tour ↗</a>
+        </div>
+      </div>
+      <!-- Monument 8: St. Philomena's Church -->
+      <div class="monument-item" data-name="St. Philomena's Church" data-dynasty="Wadiyar Dynasty (1936 CE)" data-material="Cut Stone & Stained Glass" data-tour="https://www.p4panorama.com/360-virtual-tour/st-philomena-church-mysore/">
+        <h3>St. Philomena's Church</h3>
+        <span class="mon_dynasty">Wadiyar Dynasty (Mysuru)</span>
+        <p>Neo-Gothic architectural masterpiece with twin 175-foot spires modeled after Cologne Cathedral.</p>
+        <div style="display: flex; gap: 6px; margin-top: 8px;">
+          <button class="inspect-btn" style="flex: 1;">3D Wireframe</button>
+          <a href="https://www.p4panorama.com/360-virtual-tour/st-philomena-church-mysore/" target="_blank" class="inspect-btn" style="flex: 1; text-align: center; text-decoration: none; background: rgba(212,114,44,0.3); border-color: var(--gold, #d4722c); color: #fff;">360° Tour ↗</a>
+        </div>
+      </div>
+      <!-- Monument 9: Humayun's Tomb -->
+      <div class="monument-item" data-name="Humayun's Tomb" data-dynasty="Mughal Empire (1572 CE)" data-material="Red Sandstone & Marble" data-tour="https://www.360cities.net/image/humayuns-tomb#google_vignette">
+        <h3>Humayun's Tomb</h3>
+        <span class="mon_dynasty">Mughal Empire (New Delhi)</span>
+        <p>The first grand garden-tomb of the Indian subcontinent and architectural inspiration for the Taj Mahal.</p>
+        <div style="display: flex; gap: 6px; margin-top: 8px;">
+          <button class="inspect-btn" style="flex: 1;">3D Wireframe</button>
+          <a href="https://www.360cities.net/image/humayuns-tomb#google_vignette" target="_blank" class="inspect-btn" style="flex: 1; text-align: center; text-decoration: none; background: rgba(212,114,44,0.3); border-color: var(--gold, #d4722c); color: #fff;">360° Tour ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cinematic Monument Spotlight Display -->
+    <div class="inspector-display" id="inspector-output">
+      <div class="spotlight-card-wrapper">
+        <div class="spotlight-img-container">
+          <img id="spotlight-img" src="images/taj.png" alt="Monument Spotlight" crossorigin="anonymous" />
+          <div class="spotlight-badge">VERIFIED ARCHIVAL TWIN</div>
+        </div>
+        <div class="wireframe-overlay-info" id="wireframe-info">
+          <strong>[SELECT A MONUMENT ABOVE TO LOAD ARCHIVAL TELEMETRY]</strong><br>
+          Connected to Google Gemini API for real-time historical verification.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Feature 2 Modal: Kathakar AI Guide with Sidebar History -->
+<div class="feature-modal-overlay" id="feature-2-modal">
+  <div class="feature-modal-container kathakar-workspace">
+    <button class="feature-close-btn" id="close-feature-2">×</button>
+    
+    <!-- Sidebar History Panel -->
+    <div class="kathakar-sidebar">
+      <button class="new-chat-btn" id="new-chat-btn">+ New Lore Session</button>
+      <span class="sidebar-section-title">Recent Conversations</span>
+      <div class="chat-history-list" id="chat-history-list">
+        <!-- History items populated via JS -->
+      </div>
+      <div style="margin-top: auto; padding: 12px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 10px; color: #555; line-height: 1.6;">
+        <div style="color:#d4722c;font-weight:600;margin-bottom:4px;">⚡ Powered by</div>
+        <div>Google Gemini AI</div>
+        <div>Model: gemini-flash-latest</div>
+        <div style="margin-top:6px;">🌐 EN · हिं · ಕ · తె</div>
+        <div style="margin-top:4px;">🔊 Voice narration available</div>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="kathakar-main-chat">
+      <div class="feature-header-mini">
+        <span class="feature-tag">CHAPTER 02 MODULE · GEMINI AI</span>
+        <h2>Kathakar AI Guide</h2>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg ai-msg">
+          <span>🙏 <strong>Namaste, traveler.</strong> I am <strong>Kathakar</strong> — your AI storyteller of Indian heritage.<br><br>
+          Ask me about the legends of Hampi, the engineering of Chola temples, the folklore of Ellora, or the history of any monument across India. I can respond in <strong>English, हिंदी, ಕನ್ನಡ, or తెలుగు</strong>.<br><br>
+          <em>Select a language above, or simply write in your preferred language and I'll respond in kind.</em></span>
+        </div>
+      </div>
+
+      <div class="prompt-chips">
+        <button class="chip" data-query="What is the legend behind the Hampi Stone Chariot?">🏛️ Hampi Chariot</button>
+        <button class="chip" data-query="How was the Brihadeeswarar Temple cupola stone placed at the top?">⚙️ Chola Engineering</button>
+        <button class="chip" data-query="Tell me the astronomical secrets of Konark Sun Temple.">☀️ Konark Sundials</button>
+        <button class="chip" data-query="ताज महल के बारे में कोई अनसुनी कहानी बताइए">🕌 ताज महल</button>
+        <button class="chip" data-query="ಎಲ್ಲೋರ ಗುಹೆಗಳ ಇತಿಹಾಸ ಮತ್ತು ರಹಸ್ಯಗಳನ್ನು ಹೇಳಿ">🪨 ಎಲ್ಲೋರ ಗುಹೆಗಳು</button>
+        <button class="chip" data-query="Tell me about the local folklore around Humayun's Tomb in Delhi.">🏰 Humayun's Tomb</button>
+        <button class="chip" data-query="What are the architectural styles of South Indian temples?">🛕 Dravidian Arch.</button>
+        <button class="chip" data-query="Tell me about St. Philomena's Church in Mysuru and its history.">⛪ St. Philomena's</button>
+      </div>
+
+      <div id="kathakar-img-preview-container" style="display:none;align-items:center;gap:10px;padding:6px 12px;background:rgba(212,114,44,0.12);border-radius:8px;margin-bottom:8px;border:1px solid rgba(212,114,44,0.3);">
+        <img id="kathakar-img-preview" src="" alt="Monument Preview" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" />
+        <span id="kathakar-img-name" style="font-size:11px;color:#fdf1e1;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+        <button id="kathakar-img-remove-btn" type="button" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:16px;margin-left:auto;">×</button>
+      </div>
+      <div class="chat-input-area" style="display:flex;align-items:center;gap:8px;">
+        <label for="kathakar-img-input" class="chat-attach-btn" title="Upload monument image for AI vision analysis" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fdf1e1;transition:all 0.2s;">
+          📷
+          <input type="file" id="kathakar-img-input" accept="image/*" style="display:none;" />
+        </label>
+        <input type="text" id="chat-input" placeholder="Ask in English, हिंदी, ಕನ್ನಡ, or తెలుగు, or attach photo…" style="flex:1;" />
+        <button id="send-chat-btn">Send ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Full-Screen Chapter 03: Lipika Script Lens -->
+<div class="fullscreen-feature-view" id="fullscreen-chapter-03">
+  <header class="feature-nav">
+    <button class="back-btn" id="back-from-ch3">← Return to Chapters</button>
+    <div class="nav-title">CHAPTER 03: LIPIKA SCRIPT LENS</div>
+    <div class="nav-status">LIVE EPIGRAPHIC OCR & DATING ENGINE</div>
+  </header>
+
+  <main class="dashboard-layout">
+    <div class="epigraph-workspace" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+      
+      <!-- Left: Upload & Scanner Panel -->
+      <div class="scanner-panel">
+        <h1 class="dashboard-heading" style="font-size: 2.5rem;">Epigraphic Workbench</h1>
+        <p class="dashboard-subtext" style="margin-bottom: 20px;">Upload an image of an ancient Indian inscription. Our AI will analyze stroke morphology to date the artifact, decipher the script, and extract its historical meaning.</p>
+        
+        <label class="ch3-upload-zone" for="ch3-file-input">
+          <div id="ch3-upload-placeholder">
+            <span style="font-size: 2rem;">📸</span><br>
+            <strong>Click or Drop Image Here</strong><br>
+            <span style="font-size: 0.85rem; color: rgba(253,241,225,0.5);">Supports high-res stone edicts, palm leaves, & copper plates</span>
+          </div>
+          <img id="ch3-preview-img" src="" alt="Artifact Preview" style="display: none;" />
+          <div class="ch3-laser-scan" id="ch3-laser" style="display: none;"></div>
+          <input type="file" id="ch3-file-input" accept="image/*" style="display: none;" />
+        </label>
+      </div>
+
+      <!-- Right: Telemetry & Deciphering Output -->
+      <div class="epigraph-telemetry" id="ch3-telemetry" style="opacity: 0.3; pointer-events: none; display: flex; flex-direction: column; gap: 20px;">
+        
+        <div class="telemetry-card" style="background: rgba(212, 114, 44, 0.1); border-color: rgba(212, 114, 44, 0.4);">
+          <span class="card-label" style="color: #d4722c;">MORPHOLOGICAL DATING ESTIMATE</span>
+          <h3 id="ch3-era-output" class="dynamic-value" style="color: var(--paper); font-size: 1.5rem; margin: 8px 0;">Awaiting artifact...</h3>
+          <p id="ch3-script-type" class="context-text" style="color: #ffcc00; font-family: monospace;">--</p>
+        </div>
+
+        <div class="telemetry-card">
+          <span class="card-label">EXTRACTED GLYPHS</span>
+          <h3 id="ch3-glyph-output" class="dynamic-value" style="font-family: serif; letter-spacing: 2px;">--</h3>
+        </div>
+
+        <div class="telemetry-card optimal-card">
+          <span class="card-label highlight-label">MODERN TRANSLATION</span>
+          <p id="ch3-translation-output" class="context-text highlight-text" style="font-size: 1.1rem; line-height: 1.6; margin-top: 10px;">--</p>
+        </div>
+
+        <div class="telemetry-card">
+          <span class="card-label">HISTORICAL SIGNIFICANCE (ARCHAEOLOGICAL CONTEXT)</span>
+          <p id="ch3-context-output" class="context-text" style="margin-top: 10px;">--</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<!-- Full-Screen Chapter 05: Tirth-Yatra Forecast -->
+<div class="fullscreen-feature-view" id="fullscreen-chapter-05">
+  <header class="feature-nav">
+    <button class="back-btn" id="back-from-ch5">← Return to Chapters</button>
+    <div class="nav-title">CHAPTER 05: TIRTH-YATRA FORECAST</div>
+    <div class="nav-status">LIVE AI PREDICTIVE MODELING</div>
+  </header>
+
+  <main class="dashboard-layout">
+    <div class="search-panel">
+      <h1 class="dashboard-heading">Pilgrimage Crowd Analytics</h1>
+      <p class="dashboard-subtext">Enter any sacred heritage site to simulate live footfall, peak congestion hours, and optimal visiting windows using our AI forecasting model.</p>
+      
+      <div class="search-box-wrapper">
+        <input type="text" id="ch5-site-search" placeholder="E.g., Vaishno Devi, Golden Temple, Madurai Meenakshi..." />
+        <button id="ch5-analyze-btn">Run Analytics ↗</button>
+      </div>
+    </div>
+
+    <div class="telemetry-grid">
+      <div class="telemetry-card">
+        <span class="card-label">CURRENT DENSITY MODEL</span>
+        <h3 id="ch5-density-output" class="dynamic-value">--</h3>
+        <div class="progress-track"><div class="progress-fill" id="ch5-density-bar"></div></div>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">PEAK CONGESTION WINDOW</span>
+        <h3 id="ch5-peak-output" class="dynamic-value">--</h3>
+        <p id="ch5-peak-reason" class="context-text">Awaiting location data...</p>
+      </div>
+
+      <div class="telemetry-card optimal-card">
+        <span class="card-label highlight-label">AI OPTIMAL VISIT WINDOW</span>
+        <h3 id="ch5-optimal-output" class="dynamic-value highlight-value">--</h3>
+        <p id="ch5-optimal-reason" class="context-text highlight-text">Run analysis for recommendations.</p>
+      </div>
+    </div>
+  </main>
+</div>
+<!-- Full-Screen Chapter 06: Kala-Bazaar Artisan Heritage -->
+<div class="fullscreen-feature-view" id="fullscreen-chapter-06">
+  <header class="feature-nav">
+    <button class="back-btn" id="back-from-ch6">← Return to Chapters</button>
+    <div class="nav-title">CHAPTER 06: KALA-BAZAAR (ARTISAN HERITAGE)</div>
+    <div class="nav-status">LIVE AI CRAFT & GI TAG SCANNER</div>
+  </header>
+
+  <main class="dashboard-layout">
+    <div class="search-panel">
+      <h1 class="dashboard-heading">Regional Artisan Archive</h1>
+      <p class="dashboard-subtext">Enter any Indian city, state, or region to instantly retrieve its ancient handicrafts, Geographical Indication (GI) tags, and authenticity markers to support local artisans.</p>
+      
+      <div class="search-box-wrapper">
+        <input type="text" id="ch6-region-search" placeholder="E.g., Kanchipuram, Kutch, Mysore, Varanasi..." />
+        <button id="ch6-explore-btn">Discover Crafts ↗</button>
+      </div>
+    </div>
+
+    <!-- Dynamic Telemetry Output -->
+    <div class="craft-telemetry-container" id="ch6-output-container" style="display: none;">
+      <div class="telemetry-header">
+        <h2 id="ch6-region-title" style="font-family: 'Cinzel', serif; color: var(--paper); margin: 0; font-size: 2rem;">--</h2>
+        <span id="ch6-gi-status" style="background: rgba(75, 181, 67, 0.15); color: #4bb543; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 12px; border: 1px solid rgba(75, 181, 67, 0.4);">GI TAG VERIFIED</span>
+      </div>
+      
+      <div class="telemetry-grid" style="margin-top: 30px;">
+        <div class="telemetry-card" style="grid-column: span 2;">
+          <span class="card-label">PRIMARY HERITAGE CRAFT & HISTORY</span>
+          <h3 id="ch6-craft-name" class="dynamic-value" style="margin: 10px 0;">--</h3>
+          <p id="ch6-craft-history" class="context-text" style="font-size: 1.05rem;">Awaiting regional scan...</p>
+        </div>
+
+        <div class="telemetry-card">
+          <span class="card-label" style="color: #ffcc00;">AUTHENTICITY MARKERS (HOW TO SPOT FAKES)</span>
+          <ul id="ch6-auth-markers" style="color: rgba(253, 241, 225, 0.8); font-size: 0.95rem; line-height: 1.6; padding-left: 20px; margin-top: 15px;">
+            <li>Input a region to load visual markers.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

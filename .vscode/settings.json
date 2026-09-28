@@ -1,0 +1,13 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/Virasat/backend/venv/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/Virasat/backend/venv/Lib/site-packages",
+    "c:/Users/LIKITH REDDY/AppData/Roaming/Python/Python314/site-packages",
+    "c:/Users/LIKITH REDDY/OneDrive/Desktop/VirasatX/Virasat/backend/venv/Lib/site-packages"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/Virasat/backend/venv/Lib/site-packages",
+    "c:/Users/LIKITH REDDY/AppData/Roaming/Python/Python314/site-packages",
+    "c:/Users/LIKITH REDDY/OneDrive/Desktop/VirasatX/Virasat/backend/venv/Lib/site-packages"
+  ]
+}

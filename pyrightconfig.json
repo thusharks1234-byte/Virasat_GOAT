@@ -1,0 +1,12 @@
+{
+  "include": [
+    "Virasat"
+  ],
+  "venvPath": "Virasat/backend",
+  "venv": "venv",
+  "extraPaths": [
+    "Virasat/backend/venv/Lib/site-packages",
+    "c:/Users/LIKITH REDDY/OneDrive/Desktop/VirasatX/Virasat/backend/venv/Lib/site-packages",
+    "c:/Users/LIKITH REDDY/AppData/Roaming/Python/Python314/site-packages"
+  ]
+}

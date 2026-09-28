@@ -1,0 +1,1012 @@
+/* ===================================================
+   VIRASATX — CHAPTER 01: THE ARCHIVE OF MONUMENTS
+   Cinematic Dark Heritage Design System
+   =================================================== */
+
+:root {
+  --vx-bg-dark: #0b1110;
+  --vx-bg-card: rgba(14, 22, 20, 0.88);
+  --vx-bg-card-hover: rgba(22, 34, 31, 0.95);
+  --vx-paper: #fdf1e1;
+  --vx-paper-muted: rgba(253, 241, 225, 0.7);
+  --vx-paper-dim: rgba(253, 241, 225, 0.45);
+  --vx-gold: #d4722c;
+  --vx-gold-bright: #ffaa33;
+  --vx-gold-glow: rgba(212, 114, 44, 0.35);
+  --vx-border: rgba(253, 241, 225, 0.12);
+  --vx-border-gold: rgba(212, 114, 44, 0.45);
+  --vx-shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.65);
+  --vx-font-serif: var(--font-display);
+  --vx-font-sans: var(--font-body);
+}
+
+/* Fullscreen Immersive Archive Modal */
+.archive-fullscreen-container {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background-color: var(--vx-bg-dark);
+  color: var(--vx-paper);
+  font-family: var(--vx-font-sans);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.archive-fullscreen-container.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Header */
+.archive-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  background: rgba(11, 17, 16, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--vx-border);
+  z-index: 30;
+  gap: 20px;
+}
+
+.archive-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.archive-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--vx-gold-bright);
+}
+
+.archive-heading {
+  margin: 0;
+  font-family: var(--vx-font-serif);
+  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--vx-paper);
+  line-height: 1.1;
+}
+
+.archive-subheading {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--vx-paper-muted);
+  max-width: 600px;
+  line-height: 1.35;
+}
+
+.archive-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.archive-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(253, 241, 225, 0.06);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-paper);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.archive-close-btn:hover {
+  background: rgba(212, 114, 44, 0.2);
+  border-color: var(--vx-gold);
+  color: var(--vx-gold-bright);
+  transform: rotate(90deg);
+}
+
+/* Main Workspace Split Layout */
+.archive-workspace {
+  position: relative;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Map Section */
+.archive-map-pane {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: #080d0c;
+  overflow: hidden;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #090e0d !important;
+  font-family: var(--vx-font-sans);
+}
+
+/* Dark themed tiles adjustment */
+.dark-heritage-tiles {
+  filter: brightness(0.72) invert(0.95) contrast(1.18) hue-rotate(180deg) saturate(0.35);
+}
+
+/* Map Header Floating Search and Reset */
+.map-floating-controls {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.map-floating-controls > * {
+  pointer-events: auto;
+}
+
+.archive-search-container {
+  position: relative;
+  width: min(380px, 70vw);
+}
+
+.archive-search-input {
+  width: 100%;
+  padding: 12px 18px 12px 42px;
+  background: rgba(11, 17, 16, 0.88);
+  border: 1px solid var(--vx-border);
+  border-radius: 999px;
+  color: var(--vx-paper);
+  font-size: 0.9rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.archive-search-input:focus {
+  border-color: var(--vx-gold);
+  box-shadow: 0 0 0 3px var(--vx-gold-glow), 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.archive-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--vx-paper-muted);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.archive-search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(14, 22, 20, 0.96);
+  border: 1px solid var(--vx-border);
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: var(--vx-shadow-lg);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: var(--vx-paper);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-dropdown-item:hover,
+.search-dropdown-item:focus {
+  background: rgba(212, 114, 44, 0.18);
+  outline: none;
+}
+
+.search-dropdown-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.search-dropdown-state {
+  font-size: 0.75rem;
+  color: var(--vx-gold-bright);
+}
+
+.map-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: rgba(11, 17, 16, 0.88);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-paper);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.map-reset-btn:hover {
+  background: rgba(212, 114, 44, 0.2);
+  border-color: var(--vx-gold);
+  color: var(--vx-gold-bright);
+  transform: translateY(-1px);
+}
+
+/* Custom Marker Styling */
+.heritage-custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-pin-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+}
+
+.marker-pulse-ring {
+  position: absolute;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--vx-gold-glow);
+  box-shadow: 0 0 15px var(--vx-gold-bright);
+  animation: marker-pulse 2.2s infinite ease-out;
+}
+
+.marker-head {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ffb347 0%, #d4722c 100%);
+  border: 2px solid #fff3e0;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 114, 44, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.marker-inner-icon {
+  transform: rotate(45deg);
+  font-size: 14px;
+  color: #111411;
+  font-weight: bold;
+}
+
+.marker-pin-wrapper.is-selected .marker-head {
+  transform: rotate(-45deg) scale(1.25);
+  background: linear-gradient(135deg, #ffffff 0%, #ffaa33 100%);
+  box-shadow: 0 0 25px #ffaa33;
+}
+
+.marker-label-badge {
+  margin-top: 6px;
+  background: rgba(11, 17, 16, 0.92);
+  border: 1px solid var(--vx-border-gold);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vx-paper);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+@keyframes marker-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Custom Leaflet Tooltip */
+.leaflet-tooltip.heritage-tooltip {
+  background: rgba(14, 22, 20, 0.95);
+  border: 1px solid var(--vx-border-gold);
+  border-radius: 8px;
+  color: var(--vx-paper);
+  font-family: var(--vx-font-sans);
+  font-size: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-tooltip.heritage-tooltip::before {
+  border-top-color: rgba(14, 22, 20, 0.95);
+}
+
+/* Monument Info Panel (Right Side / Overlay) */
+.monument-info-overlay {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: min(440px, calc(100vw - 48px));
+  z-index: 1001;
+  background: var(--vx-bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--vx-border);
+  border-radius: 24px;
+  box-shadow: var(--vx-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.info-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-scroll-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.info-scroll-body::-webkit-scrollbar-thumb {
+  background: rgba(253, 241, 225, 0.15);
+  border-radius: 999px;
+}
+
+.monument-hero-media {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--vx-border);
+  background: #0f1816;
+}
+
+.monument-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.monument-hero-media:hover img {
+  transform: scale(1.05);
+}
+
+.unesco-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(11, 17, 16, 0.85);
+  border: 1px solid var(--vx-border-gold);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vx-gold-bright);
+  backdrop-filter: blur(8px);
+}
+
+.info-header-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-location-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--vx-gold-bright);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-monument-title {
+  margin: 0;
+  font-family: var(--vx-font-serif);
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--vx-paper);
+  line-height: 1.15;
+}
+
+.meta-spec-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.spec-item {
+  background: rgba(253, 241, 225, 0.04);
+  border: 1px solid var(--vx-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.spec-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--vx-paper-dim);
+  margin-bottom: 4px;
+}
+
+.spec-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--vx-paper);
+  line-height: 1.35;
+}
+
+.monument-desc-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--vx-paper-muted);
+}
+
+.key-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.key-highlights-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.88rem;
+  color: var(--vx-paper-muted);
+  line-height: 1.45;
+}
+
+.key-highlights-list li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: var(--vx-gold-bright);
+  font-size: 10px;
+}
+
+/* Explore 3D Button */
+.info-footer-action {
+  padding: 20px 24px;
+  background: rgba(11, 17, 16, 0.92);
+  border-top: 1px solid var(--vx-border);
+}
+
+.explore-3d-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #d4722c 0%, #bd5e1b 100%);
+  border: 1px solid rgba(255, 200, 100, 0.3);
+  color: var(--vx-paper);
+  font-family: var(--vx-font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 30px var(--vx-gold-glow);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.explore-3d-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(212, 114, 44, 0.55);
+  background: linear-gradient(135deg, #e58e3c 0%, #d4722c 100%);
+}
+
+.explore-3d-btn:active {
+  transform: translateY(0);
+}
+
+/* ===================================================
+   3D MONUMENT VIEWER OVERLAY & HUD
+   =================================================== */
+
+.monument-3d-viewer-root {
+  position: absolute;
+  inset: 0;
+  z-index: 1050;
+  background: radial-gradient(circle at center, #152220 0%, #080d0c 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.monument-3d-viewer-root.is-visible {
+  opacity: 1;
+}
+
+.monument-360-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 1;
+}
+
+.monument-360-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  display: block;
+}
+
+.three-canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.three-canvas-container:active {
+  cursor: grabbing;
+}
+
+/* 3D Viewer Header */
+.viewer-3d-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 32px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 13, 12, 0.85) 0%, transparent 100%);
+}
+
+.viewer-3d-header > * {
+  pointer-events: auto;
+}
+
+.viewer-back-btn {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(11, 17, 16, 0.8);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-paper);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+
+.viewer-back-btn:hover {
+  background: rgba(212, 114, 44, 0.2);
+  border-color: var(--vx-gold);
+  color: var(--vx-gold-bright);
+  transform: translateX(-3px);
+}
+
+.viewer-title-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewer-monument-name {
+  margin: 0;
+  font-family: var(--vx-font-serif);
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--vx-paper);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.reconstruction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--vx-gold-bright);
+  background: rgba(212, 114, 44, 0.12);
+  border: 1px solid var(--vx-border-gold);
+  padding: 3px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.viewer-controls-toolbar {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viewer-tool-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(11, 17, 16, 0.8);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-paper);
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.viewer-tool-btn.is-active,
+.viewer-tool-btn:hover {
+  background: rgba(212, 114, 44, 0.25);
+  border-color: var(--vx-gold);
+  color: var(--vx-gold-bright);
+}
+
+/* 3D Side/Bottom Telemetry Card */
+.viewer-side-telemetry {
+  position: absolute;
+  left: 32px;
+  bottom: 32px;
+  width: min(390px, calc(100vw - 64px));
+  z-index: 10;
+  background: rgba(11, 17, 16, 0.85);
+  border: 1px solid var(--vx-border);
+  border-radius: 20px;
+  padding: 22px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--vx-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: auto;
+  animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.telemetry-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.telemetry-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--vx-gold-bright);
+}
+
+.telemetry-value {
+  font-size: 0.92rem;
+  color: var(--vx-paper);
+  line-height: 1.4;
+}
+
+/* Timeline section inside 3D viewer */
+.viewer-timeline-container {
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
+  width: min(420px, calc(100vw - 64px));
+  z-index: 10;
+  background: rgba(11, 17, 16, 0.85);
+  border: 1px solid var(--vx-border);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--vx-shadow-lg);
+  pointer-events: auto;
+}
+
+.timeline-header-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--vx-gold-bright);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-flow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.timeline-flow-list::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(212, 114, 44, 0.6) 0%, rgba(253, 241, 225, 0.2) 100%);
+}
+
+.timeline-node-item {
+  position: relative;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-node-dot {
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vx-gold-bright);
+  box-shadow: 0 0 8px var(--vx-gold);
+}
+
+.timeline-node-era {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--vx-paper);
+}
+
+.timeline-node-year {
+  font-size: 0.75rem;
+  color: var(--vx-gold-bright);
+  font-family: var(--font-mono);
+}
+
+.timeline-node-desc {
+  font-size: 0.82rem;
+  color: var(--vx-paper-muted);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* Bottom Center Interaction Guide */
+.viewer-interaction-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgba(11, 17, 16, 0.7);
+  border: 1px solid var(--vx-border);
+  backdrop-filter: blur(10px);
+  color: var(--vx-paper-dim);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Fallback & Loading Overlay in 3D Viewer */
+.viewer-status-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 24px 32px;
+  background: rgba(11, 17, 16, 0.85);
+  border: 1px solid var(--vx-border-gold);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  z-index: 20;
+  pointer-events: none;
+  max-width: 420px;
+}
+
+.status-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(253, 241, 225, 0.1);
+  border-top-color: var(--vx-gold-bright);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.status-title {
+  font-family: var(--vx-font-serif);
+  font-size: 1.2rem;
+  color: var(--vx-paper);
+}
+
+.status-desc {
+  font-size: 0.85rem;
+  color: var(--vx-paper-muted);
+  line-height: 1.4;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .monument-info-overlay {
+    width: min(380px, calc(100vw - 32px));
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .viewer-side-telemetry {
+    left: 20px;
+    bottom: 20px;
+    width: 320px;
+  }
+  .viewer-timeline-container {
+    right: 20px;
+    bottom: 20px;
+    width: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .archive-top-bar {
+    padding: 14px 18px;
+  }
+  .archive-subheading {
+    display: none;
+  }
+  .map-floating-controls {
+    flex-direction: column;
+    left: 16px;
+    right: 16px;
+    top: 16px;
+  }
+  .archive-search-container {
+    width: 100%;
+  }
+  .monument-info-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 60vh;
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+  }
+  .viewer-3d-header {
+    padding: 16px;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+  }
+  .viewer-side-telemetry {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+  .viewer-timeline-container {
+    display: none;
+  }
+  .viewer-interaction-hint {
+    display: none;
+  }
+}
+.archive-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  color: var(--paper, #fdf1e1);
+  background: rgba(8, 12, 10, 0.94);
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.08em;
+}

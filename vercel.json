@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci --prefix VirasatX || npm install --prefix VirasatX",
+  "buildCommand": "npm run build --prefix VirasatX",
+  "outputDirectory": "VirasatX/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
