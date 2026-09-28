@@ -2,9 +2,6 @@
   "name": "virasatx-workspace",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "VirasatX"
-  ],
   "scripts": {
     "dev": "npm run dev --prefix VirasatX",
     "build": "npm run build --prefix VirasatX",
