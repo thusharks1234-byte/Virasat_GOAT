@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import { supabase, BACKEND_API_URL } from './supabase';
 import './index.css';
 
@@ -268,14 +269,8 @@ function App() {
 
   // Authentication State & Session Persistence
   const [authTab, setAuthTab] = useState<'signin' | 'signup' | 'profile'>('signin');
-  const [currentUser, setCurrentUser] = useState<any>(() => {
-    try {
-      const raw = localStorage.getItem('virasat_user');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(!supabase);
   const [authEmail, setAuthEmail] = useState<string>('');
   const [authPassword, setAuthPassword] = useState<string>('');
   const [authFullName, setAuthFullName] = useState<string>('');
@@ -283,20 +278,58 @@ function App() {
   const [authFeedback, setAuthFeedback] = useState<{ text: string; type: 'info' | 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const saveUserSession = (user: any, token: string | null = null) => {
-    if (user) {
-      localStorage.setItem('virasat_user', JSON.stringify(user));
-      if (token) localStorage.setItem('virasat_token', token);
-      setCurrentUser(user);
-    } else {
-      localStorage.removeItem('virasat_user');
-      localStorage.removeItem('virasat_token');
+  useEffect(() => {
+    // Supabase Auth owns session persistence; don't trust the old hand-written cache.
+    localStorage.removeItem('virasat_user');
+    localStorage.removeItem('virasat_token');
+
+    if (!supabase) {
       setCurrentUser(null);
+      setIsAuthReady(true);
+      return;
     }
-  };
+
+    let active = true;
+    const applySession = (session: Session | null) => {
+      const user = session?.user;
+      setCurrentUser(user ? {
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Explorer',
+        role: user.user_metadata?.role || 'explorer',
+      } : null);
+      setIsAuthReady(true);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) applySession(session);
+    });
+
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!active) return;
+      if (error) {
+        setCurrentUser(null);
+        setAuthFeedback({ text: 'Could not restore your Supabase session. Please sign in again.', type: 'error' });
+        setIsAuthReady(true);
+        return;
+      }
+      applySession(data.session);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Feature Access Guard: only allow logged in users to access features, else redirect to sign in
   const handleFeatureAccess = (callback: () => void) => {
+    if (!isAuthReady) {
+      setAuthTab('signin');
+      setAuthFeedback({ text: 'Checking your Supabase session…', type: 'info' });
+      setIsAuthOpen(true);
+      return;
+    }
     if (!currentUser) {
       setIsChaptersOpen(false);
       setAuthTab('signin');
@@ -771,56 +804,25 @@ function App() {
     setAuthFeedback({ text: 'Verifying credentials with Supabase...', type: 'info' });
 
     try {
-      let loggedUser = null;
-      let token = null;
+      if (!supabase) throw new Error('Supabase is not configured. Add the project URL and publishable/anon key to the frontend environment.');
+      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password: authPassword });
+      if (error) throw error;
+      if (!data.user || !data.session) throw new Error('Supabase did not return an active session. Confirm your email, then sign in.');
 
-      // 1. Try FastAPI Backend
-      try {
-        const res = await fetch(`${BACKEND_API_URL}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, password: authPassword }),
-        });
-        if (res.ok) {
-          const json = await res.json();
-          loggedUser = json.user;
-          token = json.session?.access_token || null;
-        } else {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || 'Login failed');
-        }
-      } catch (backendErr: any) {
-        // 2. Direct Supabase Fallback
-        if (!supabase) throw backendErr;
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password: authPassword,
-        });
-        if (error) throw error;
-        if (data?.user) {
-          loggedUser = {
-            id: data.user.id,
-            email: data.user.email,
-            full_name: data.user.user_metadata?.full_name || cleanEmail.split('@')[0],
-            role: 'explorer',
-          };
-          token = data.session?.access_token || null;
-        }
-      }
-
-      if (loggedUser) {
-        saveUserSession(loggedUser, token);
-        setAuthFeedback({ text: `✓ Welcome back, ${loggedUser.full_name || 'Explorer'}!`, type: 'success' });
-        setAuthPassword('');
-        setTimeout(() => {
-          setIsAuthOpen(false);
-          setAuthFeedback(null);
-        }, 1500);
-      } else {
-        throw new Error('Could not establish session. Please verify your credentials.');
-      }
-    } catch (err: any) {
-      setAuthFeedback({ text: err.message || 'Invalid email or password. Please try again.', type: 'error' });
+      setCurrentUser({
+        id: data.user.id,
+        email: data.user.email || cleanEmail,
+        full_name: data.user.user_metadata?.full_name || cleanEmail.split('@')[0],
+        role: data.user.user_metadata?.role || 'explorer',
+      });
+      setAuthFeedback({ text: `✓ Welcome back, ${data.user.user_metadata?.full_name || cleanEmail.split('@')[0]}!`, type: 'success' });
+      setAuthPassword('');
+      setTimeout(() => {
+        setIsAuthOpen(false);
+        setAuthFeedback(null);
+      }, 1500);
+    } catch (err) {
+      setAuthFeedback({ text: err instanceof Error ? err.message : 'Invalid email or password. Please try again.', type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -842,67 +844,37 @@ function App() {
     }
 
     setIsSubmitting(true);
-    setAuthFeedback({ text: 'Creating account & syncing credentials in Supabase...', type: 'info' });
+    setAuthFeedback({ text: 'Creating your account with Supabase Auth...', type: 'info' });
 
     try {
-      let createdUser = null;
-      let token = null;
+      if (!supabase) throw new Error('Supabase is not configured. Add the project URL and publishable/anon key to the frontend environment.');
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password: authPassword,
+        options: { data: { full_name: name, role: 'explorer' } },
+      });
+      if (error) throw error;
+      if (!data.user) throw new Error('Supabase did not return a user record. Please try again.');
 
-      // 1. Try FastAPI Backend
-      try {
-        const res = await fetch(`${BACKEND_API_URL}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, password: authPassword, full_name: name }),
+      setAuthPassword('');
+      if (data.session) {
+        setCurrentUser({
+          id: data.user.id,
+          email: data.user.email || cleanEmail,
+          full_name: data.user.user_metadata?.full_name || name,
+          role: data.user.user_metadata?.role || 'explorer',
         });
-        if (res.ok) {
-          const json = await res.json();
-          createdUser = json.user;
-          token = json.session?.access_token || null;
-        } else {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || 'Registration failed');
-        }
-      } catch (backendErr: any) {
-        // 2. Direct Supabase Fallback
-        if (!supabase) throw backendErr;
-        const { data, error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: authPassword,
-          options: {
-            data: { full_name: name, role: 'explorer' },
-          },
-        });
-        if (error) throw error;
-        if (data?.user) {
-          createdUser = {
-            id: data.user.id,
-            email: data.user.email,
-            full_name: name,
-            role: 'explorer',
-          };
-          token = data.session?.access_token || null;
-
-          try {
-            await supabase.from('subscribers').upsert([{ email: cleanEmail, full_name: name }]);
-            await supabase.from('user_accounts').upsert([{ email: cleanEmail, full_name: name, auth_id: data.user.id }]);
-          } catch {}
-        }
-      }
-
-      if (createdUser) {
-        saveUserSession(createdUser, token);
         setAuthFeedback({ text: '✓ Account created successfully! Welcome to Virasat.', type: 'success' });
-        setAuthPassword('');
         setTimeout(() => {
           setIsAuthOpen(false);
           setAuthFeedback(null);
         }, 1800);
       } else {
-        throw new Error('Registration failed. Please try again.');
+        setAuthTab('signin');
+        setAuthFeedback({ text: 'Account created. Check your email to confirm your address, then sign in.', type: 'success' });
       }
-    } catch (err: any) {
-      setAuthFeedback({ text: err.message || 'Error creating account. Please try again.', type: 'error' });
+    } catch (err) {
+      setAuthFeedback({ text: err instanceof Error ? err.message : 'Error creating account. Please try again.', type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -910,10 +882,13 @@ function App() {
 
   // Sign Out Handler
   const handleSignOut = async () => {
-    try {
-      await supabase?.auth.signOut();
-    } catch {}
-    saveUserSession(null);
+    if (!supabase) return;
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setAuthFeedback({ text: error.message, type: 'error' });
+      return;
+    }
+    setCurrentUser(null);
     setIsChaptersOpen(false);
     setIsArchiveOpen(false);
     setIsKathakarOpen(false);

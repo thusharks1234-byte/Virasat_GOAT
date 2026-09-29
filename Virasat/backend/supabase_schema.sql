@@ -22,22 +22,88 @@ CREATE TABLE IF NOT EXISTS public.user_accounts (
 
 ALTER TABLE public.user_accounts ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow user account registration" ON public.user_accounts;
 DROP POLICY IF EXISTS "Allow users to read their own account" ON public.user_accounts;
 DROP POLICY IF EXISTS "Allow users to update their own account" ON public.user_accounts;
-
-CREATE POLICY "Allow user account registration"
-ON public.user_accounts FOR INSERT TO anon, authenticated
-WITH CHECK (auth.role() = 'anon' OR auth.uid() = auth_id);
 
 CREATE POLICY "Allow users to read their own account"
 ON public.user_accounts FOR SELECT TO authenticated
 USING (auth.uid() = auth_id);
 
-CREATE POLICY "Allow users to update their own account"
-ON public.user_accounts FOR UPDATE TO authenticated
-USING (auth.uid() = auth_id)
-WITH CHECK (auth.uid() = auth_id);
+REVOKE ALL ON public.user_accounts FROM anon;
+REVOKE INSERT, UPDATE, DELETE ON public.user_accounts FROM authenticated;
+GRANT SELECT ON public.user_accounts TO authenticated;
+
+-- Keep the profile row in sync with Supabase Auth without exposing password data.
+CREATE OR REPLACE FUNCTION public.handle_auth_user_profile()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+    IF NEW.email IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    INSERT INTO public.user_accounts (email, full_name, auth_id, provider, last_login_at)
+    VALUES (
+        NEW.email,
+        COALESCE(NULLIF(NEW.raw_user_meta_data ->> 'full_name', ''), split_part(NEW.email, '@', 1)),
+        NEW.id,
+        COALESCE(NEW.raw_app_meta_data ->> 'provider', 'email'),
+        NEW.last_sign_in_at
+    )
+    ON CONFLICT (email) DO UPDATE
+    SET auth_id = EXCLUDED.auth_id,
+        full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), public.user_accounts.full_name),
+        provider = EXCLUDED.provider;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.handle_auth_user_last_sign_in()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+    UPDATE public.user_accounts
+    SET last_login_at = NEW.last_sign_in_at
+    WHERE auth_id = NEW.id;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.handle_auth_user_profile();
+
+DROP TRIGGER IF EXISTS on_auth_user_last_sign_in ON auth.users;
+CREATE TRIGGER on_auth_user_last_sign_in
+AFTER UPDATE OF last_sign_in_at ON auth.users
+FOR EACH ROW
+WHEN (NEW.last_sign_in_at IS DISTINCT FROM OLD.last_sign_in_at)
+EXECUTE FUNCTION public.handle_auth_user_last_sign_in();
+
+-- Backfill profiles for Auth users created before these triggers were installed.
+INSERT INTO public.user_accounts (email, full_name, auth_id, provider, last_login_at)
+SELECT
+    users.email,
+    COALESCE(NULLIF(users.raw_user_meta_data ->> 'full_name', ''), split_part(users.email, '@', 1)),
+    users.id,
+    COALESCE(users.raw_app_meta_data ->> 'provider', 'email'),
+    users.last_sign_in_at
+FROM auth.users AS users
+WHERE users.email IS NOT NULL
+ON CONFLICT (email) DO UPDATE
+SET auth_id = EXCLUDED.auth_id,
+    full_name = COALESCE(NULLIF(public.user_accounts.full_name, ''), EXCLUDED.full_name),
+    provider = EXCLUDED.provider,
+    last_login_at = COALESCE(EXCLUDED.last_login_at, public.user_accounts.last_login_at);
 
 
 -- ==============================================================================

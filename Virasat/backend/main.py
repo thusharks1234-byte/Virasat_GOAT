@@ -151,27 +151,13 @@ def register_user(data: UserRegister):
         if res.user:
             user_id = res.user.id
     except Exception as auth_err:
-        print(f"Supabase auth.sign_up info: {auth_err}")
         err_msg = str(auth_err).lower()
-        if "already registered" in err_msg or "already exists" in err_msg:
-            raise HTTPException(status_code=400, detail="User with this email already exists. Please log in.")
+        if "already registered" in err_msg or "already exists" in err_msg or "user already registered" in err_msg:
+            raise HTTPException(status_code=409, detail="User with this email already exists. Please log in.") from auth_err
+        raise HTTPException(status_code=502, detail="Supabase Auth could not create the account.") from auth_err
 
-    # 2. Persist record in public.user_accounts and public.subscribers
-    if supabase:
-        try:
-            supabase.table("user_accounts").upsert({
-                "email": user_data["email"],
-                "full_name": user_data["full_name"],
-                "auth_id": user_id,
-                "provider": "email"
-            }, on_conflict="email").execute()
-
-            supabase.table("subscribers").upsert({
-                "email": user_data["email"],
-                "full_name": user_data["full_name"]
-            }, on_conflict="email").execute()
-        except Exception as db_err:
-            print(f"Database user sync note: {db_err}")
+    if not auth_response or not auth_response.user:
+        raise HTTPException(status_code=502, detail="Supabase Auth did not return a user record.")
 
     access_token = None
     if auth_response and hasattr(auth_response, 'session') and auth_response.session:
@@ -213,17 +199,6 @@ def login_user(data: UserLogin):
         user_id = res.user.id if res.user else None
         full_name = (res.user.user_metadata.get("full_name") if res.user and res.user.user_metadata else None) or email.split("@")[0]
         access_token = res.session.access_token if res.session else None
-
-        # Update last login timestamp
-        if supabase:
-            try:
-                from datetime import datetime, timezone
-                now_str = datetime.now(timezone.utc).isoformat()
-                supabase.table("user_accounts").update({"last_login_at": now_str}).eq("email", email).execute()
-                if user_id:
-                    supabase.table("profiles").update({"last_login_at": now_str}).eq("id", user_id).execute()
-            except Exception as update_err:
-                print(f"Timestamp update note: {update_err}")
 
         return {
             "status": "success",

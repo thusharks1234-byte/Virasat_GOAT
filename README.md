@@ -52,6 +52,7 @@ Backend API interactive docs will be available at `http://127.0.0.1:8000/docs`.
 ### 3. Environment Variables
 - **Backend**: Copy `Virasat/.env.example` to `Virasat/.env` and fill in your Supabase, Gemini, and Groq API keys.
 - **Frontend**: Copy `VirasatX/.env.example` to `VirasatX/.env.local` to configure `VITE_BACKEND_API_URL` and Supabase keys.
+- **Supabase Auth profiles**: Run `Virasat/backend/supabase_schema.sql` in the Supabase SQL Editor. Its Auth trigger creates/updates `public.user_accounts` records when users sign up and records last sign-in times. Passwords are handled by Supabase Auth and are never stored in `user_accounts`.
 
 ---
 
