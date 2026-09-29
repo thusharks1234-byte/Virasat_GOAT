@@ -61,7 +61,8 @@ Deploy this repository as one Vercel project with the **Root Directory** set to 
 
 - `GEMINI_API_KEY` and/or `GROQ_API_KEY`
 - `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY` (or `SUPABASE_ANON_KEY`)
-- `SUPABASE_SECRET_KEY` (or `SUPABASE_KEY`) for server-side database access
+- `SUPABASE_ANON_KEY` (or `SUPABASE_PUBLISHABLE_KEY`) for backend database requests under Row Level Security
+- `SUPABASE_SECRET_KEY` (or `SUPABASE_KEY`) only if you later enable a server-side secret key and enforce backend authorization
+- `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel's frontend build environment for browser sign-in
 
 For a separate backend deployment, set `VITE_BACKEND_API_URL` to its origin and configure `FRONTEND_ORIGINS` on the backend. Never put provider or Supabase secret keys in a `VITE_*` variable.

@@ -9,6 +9,36 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- TABLE 0: user_accounts, linked to Supabase Auth.
+CREATE TABLE IF NOT EXISTS public.user_accounts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    auth_id UUID UNIQUE REFERENCES auth.users(id) ON DELETE SET NULL,
+    provider TEXT DEFAULT 'email',
+    last_login_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.user_accounts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow user account registration" ON public.user_accounts;
+DROP POLICY IF EXISTS "Allow users to read their own account" ON public.user_accounts;
+DROP POLICY IF EXISTS "Allow users to update their own account" ON public.user_accounts;
+
+CREATE POLICY "Allow user account registration"
+ON public.user_accounts FOR INSERT TO anon, authenticated
+WITH CHECK (auth.role() = 'anon' OR auth.uid() = auth_id);
+
+CREATE POLICY "Allow users to read their own account"
+ON public.user_accounts FOR SELECT TO authenticated
+USING (auth.uid() = auth_id);
+
+CREATE POLICY "Allow users to update their own account"
+ON public.user_accounts FOR UPDATE TO authenticated
+USING (auth.uid() = auth_id)
+WITH CHECK (auth.uid() = auth_id);
+
 
 -- ==============================================================================
 -- TABLE 1: subscribers
