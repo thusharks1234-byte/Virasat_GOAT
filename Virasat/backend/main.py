@@ -494,6 +494,68 @@ async def kathakar_ai(data: KathakarQuery):
     if not data.query.strip() and not data.image_base64:
         raise HTTPException(status_code=400, detail="Query or image cannot be empty")
 
+    # Hardcoded / scripted responses for Hampi and Mysuru inquiries
+    norm_query = data.query.strip().lower()
+    if "hampi" in norm_query:
+        hampi_reply = (
+            "Namaste! Welcome to Hampi—the jewel of Karnataka and the magnificent capital of the Vijayanagara Empire "
+            "from the 14th to 16th century, cradled along the rugged banks of the sacred Tungabhadra River.\n\n"
+            "🏛️ Historical Grandeur:\n"
+            "During its golden era under Emperor Krishnadevaraya, Hampi was one of the largest and wealthiest metropolises "
+            "in the medieval world. Foreign travelers from Portugal, Persia, and Venice marveled at its sprawling bazaars where "
+            "rubies, pearls, and diamonds were weighed and sold openly on stone platforms.\n\n"
+            "✨ Iconic Architectural Marvels:\n"
+            "• Virupaksha Temple: Dedicated to Lord Shiva, this sacred sanctuary has stood unbroken since the 7th century, "
+            "featuring a majestic 50-meter eastern gopura and an ingenious pinhole-camera shadow phenomenon inside the sanctum.\n"
+            "• Vijaya Vittala Temple & Stone Chariot: A masterpiece of Dravidian craftsmanship, home to the world-famous "
+            "monolithic Stone Chariot (Garuda shrine) and 56 musical SaReGaMa pillars that resonate with chime-like frequencies when gently tapped.\n"
+            "• Lotus Mahal & Elephant Stables: Remarkable examples of secular Indo-Islamic architecture, with recessed cusped arches "
+            "and natural cooling channels designed for the royal court.\n\n"
+            "🌿 Sacred Lore & Kishkindha:\n"
+            "In Hindu epics, Hampi is identified as Kishkindha, the monkey kingdom of Sugriva and Vali described in the Ramayana. "
+            "Nearby Anjanadri Hill is revered as the divine birthplace of Lord Hanuman, while Matanga Hill offers panoramic sunsets "
+            "over boulder-strewn hills and tranquil river bends.\n\n"
+            "Would you like to hear more about the musical pillars of Vittala Temple, the coracle boat journeys along the river, "
+            "or the royal festivals of Vijayanagara?"
+        )
+        return {
+            "status": "success",
+            "reply": hampi_reply,
+            "model": "kathakar-curated",
+            "provider": "kathakar",
+            "language": data.language
+        }
+
+    if "mysur" in norm_query or "mysor" in norm_query:
+        mysuru_reply = (
+            "Namaste, seeker of royal heritage! Welcome to Mysuru (ancient Mahishuru), the cultural crown of Karnataka "
+            "and the fabled City of Palaces, nestled at the foothills of the sacred Chamundi Hill.\n\n"
+            "👑 Royal Legacy of the Wadiyars:\n"
+            "Ruling for over six centuries from 1399 to 1947, the Wadiyar Dynasty transformed Mysuru into a flourishing "
+            "center of classical Carnatic music, fine arts, and visionary governance. Under enlightened monarchs like "
+            "Maharaja Nalvadi Krishnaraja Wadiyar, Mysuru was celebrated as the 'Model State' of India.\n\n"
+            "✨ Architectural & Cultural Splendors:\n"
+            "• Mysore Palace (Amba Vilas): An awe-inspiring masterpiece of Indo-Saracenic architecture designed by Henry Irwin, "
+            "featuring gilded domes, sculpted mahogany ceilings, stained glass peacock pavilions, and over 100,000 incandescent bulbs "
+            "that illuminate its facade in radiant gold every Sunday and during festive dusk.\n"
+            "• Sri Chamundeshwari Temple & Nandi Monolith: Perched atop Chamundi Hill (1,000 meters above sea level), honoring Goddess "
+            "Durga who vanquished the demon Mahishasura. Halfway up the 1,000 stone steps rests the colossal 16-foot monolithic granite "
+            "Nandi Bull, sculpted in 1659.\n"
+            "• Devaraja Market & Living Crafts: A vibrant century-old bazaar brimming with mounds of fragrant gulal vermilion, "
+            "fresh marigold garlands, and the aroma of authentic Mysore Sandalwood and GI-certified Mysore Silk spun with pure silver and gold zari.\n\n"
+            "🎉 Living Traditions & The Nada Habba:\n"
+            "During Mysuru Dasara, the city bursts into a 10-day celebration of good triumphing over darkness. On Vijayadashami, "
+            "the royal elephant leads the world-famous Jumboo Savari procession carrying the 750-kg golden howdah of Goddess Chamundeshwari through cheering streets.\n\n"
+            "Would you like to explore the royal secrets of the Amba Vilas Palace, hear the legend of Chamundi Hill, or discover how traditional Mysore Silk sarees are woven?"
+        )
+        return {
+            "status": "success",
+            "reply": mysuru_reply,
+            "model": "kathakar-curated",
+            "provider": "kathakar",
+            "language": data.language
+        }
+
     if not GEMINI_API_KEY and not GROQ_API_KEY:
         raise HTTPException(status_code=503, detail="No AI provider API key is configured.")
 
