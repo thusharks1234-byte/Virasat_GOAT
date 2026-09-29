@@ -93,7 +93,7 @@ interface LipikaResult {
 
 interface QuestData {
   destination: string;
-  passport_hash: string;
+  passport_id: string;
   provider?: string;
   stops: string[];
   reward: { title: string; description: string };
@@ -317,6 +317,7 @@ function App() {
   const [questDestination, setQuestDestination] = useState<string>('');
   const [questData, setQuestData] = useState<QuestData | null>(null);
   const [questCollectedStops, setQuestCollectedStops] = useState<number>(0);
+  const [isQuestStamping, setIsQuestStamping] = useState<boolean>(false);
   const [isQuestGenerating, setIsQuestGenerating] = useState<boolean>(false);
   const [questError, setQuestError] = useState<string>('');
   const [isForecastOpen, setIsForecastOpen] = useState<boolean>(false);
@@ -551,10 +552,19 @@ function App() {
       const response = await fetch(`${BACKEND_API_URL}/api/quest/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destination }),
+        body: JSON.stringify({ destination, user_id: currentUser.id }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.detail || 'The quest could not be generated.');
+      const stampsResponse = await fetch(`${BACKEND_API_URL}/api/yatra/stamps/${encodeURIComponent(currentUser.id)}`);
+      const stampsData = await stampsResponse.json().catch(() => ({}));
+      if (!stampsResponse.ok) throw new Error(stampsData.detail || 'Your saved passport stamps could not be loaded.');
+      const savedSiteIds = new Set((stampsData.stamps || []).map((stamp: { site_id: string }) => stamp.site_id));
+      let collected = 0;
+      while (collected < (data.stops as string[]).length && savedSiteIds.has(`${data.passport_id}:${collected}`)) {
+        collected += 1;
+      }
+      setQuestCollectedStops(collected);
       setQuestData(data as QuestData);
     } catch (error) {
       setQuestError(error instanceof TypeError
@@ -565,9 +575,30 @@ function App() {
     }
   };
 
-  const collectQuestStop = (index: number) => {
-    if (!questData || index !== questCollectedStops) return;
-    setQuestCollectedStops((count) => Math.min(count + 1, questData.stops.length));
+  const collectQuestStop = async (index: number) => {
+    if (!questData || index !== questCollectedStops || isQuestStamping) return;
+    setIsQuestStamping(true);
+    setQuestError('');
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/api/yatra/stamp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          site_id: `${questData.passport_id}:${index}`,
+          site_name: questData.stops[index],
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || 'The passport stamp could not be saved.');
+      setQuestCollectedStops((count) => Math.min(count + 1, questData.stops.length));
+    } catch (error) {
+      setQuestError(error instanceof TypeError
+        ? 'The passport service is offline. Start the Virasat API and try again.'
+        : error instanceof Error ? error.message : 'The passport stamp could not be saved.');
+    } finally {
+      setIsQuestStamping(false);
+    }
   };
 
   const openForecast = () => {
@@ -687,7 +718,6 @@ function App() {
       const promptResponse = await fetch(`${BACKEND_API_URL}/api/tryon/image-prompt`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          image_base64: tryOnImage,
           garment_name: tryOnGarment,
           garment_formatted: tryOnData.garmentNameFormatted,
           region_of_origin: tryOnData.regionOfOrigin,
@@ -1855,13 +1885,13 @@ function App() {
         <nav className="feature-nav">
           <button className="back-btn" onClick={closeQuestPassport}>← Return to Chapters</button>
           <h1 className="nav-title ch4-nav-title">YATRA-QUEST</h1>
-          <span className="nav-status ch4-nav-status"><span className="connection-dot" />LIVE QR &amp; REWARD ENGINE</span>
+          <span className="nav-status ch4-nav-status"><span className="connection-dot" />SAVED DIGITAL PASSPORT</span>
         </nav>
         <main className="dashboard-layout ch4-dashboard-layout">
           <div className="search-panel ch4-search-panel">
             <span className="chapters-subtitle">CHAPTER 04 · DIGITAL PASSPORT</span>
             <h2 className="dashboard-heading">Gamified Tourist Passport</h2>
-            <p className="dashboard-subtext">Enter a destination to generate a unique quest passport. Check in at three cultural landmarks to collect cryptographic stamps and unlock a proposed partner reward.</p>
+            <p className="dashboard-subtext">Enter a destination to create a saved heritage trail. Check in at each landmark to save your progress. Stamps are self-reported; location is not verified.</p>
             <form className="search-box-wrapper ch4-search-box" onSubmit={generateQuestPassport}>
               <input
                 value={questDestination}
@@ -1879,16 +1909,16 @@ function App() {
           {questData && (
             <div className="quest-dashboard" aria-live="polite">
               <article className="passport-card ch4-card">
-                <span className="card-label">SECURE DIGITAL PASSPORT</span>
+                <span className="card-label">DIGITAL YATRA PASS</span>
                 <strong className="passport-destination">{questData.destination}</strong>
                 <div className="qr-container">
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(questData.passport_hash)}&color=070b0a&bgcolor=fdf1e1`}
-                    alt={`QR code for ${questData.passport_hash}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(questData.passport_id)}&color=070b0a&bgcolor=fdf1e1`}
+                    alt={`QR code for ${questData.passport_id}`}
                   />
                 </div>
-                <span className="hash-string">{questData.passport_hash}</span>
-                <span className="passport-provider">{questData.provider === 'gemini' ? 'Gemini quest engine' : 'Heritage route engine'}</span>
+                <span className="hash-string">{questData.passport_id}</span>
+                <span className="passport-provider">{questData.provider === 'gemini' ? 'Gemini route engine' : 'Groq route engine'}</span>
               </article>
 
               <article className="trail-card ch4-card">
@@ -1905,13 +1935,13 @@ function App() {
                         className={`stamp-slot ${collected ? 'collected' : ''} ${ready ? 'active' : ''}`}
                         key={stop}
                         onClick={() => collectQuestStop(index)}
-                        disabled={!ready}
+                        disabled={!ready || isQuestStamping}
                         aria-label={`${collected ? 'Collected' : ready ? 'Collect' : 'Locked'} stop ${index + 1}: ${stop}`}
                       >
                         <span className="stamp-number">0{index + 1}</span>
                         <span className="stamp-icon">{collected ? '✓' : ready ? '📍' : '○'}</span>
                         <span className="stamp-name">{stop}</span>
-                        <span className="stamp-action">{collected ? 'STAMP COLLECTED' : ready ? 'CHECK IN' : 'LOCKED'}</span>
+                        <span className="stamp-action">{collected ? 'STAMP SAVED' : ready ? isQuestStamping ? 'SAVING…' : 'SAVE CHECK-IN' : 'LOCKED'}</span>
                       </button>
                     );
                   })}
@@ -1920,11 +1950,11 @@ function App() {
               </article>
 
               <article className={`reward-card ch4-card ${questCollectedStops === questData.stops.length ? 'reward-unlocked' : ''}`}>
-                <span className="card-label highlight-label">GOVERNMENT / PARTNER REWARD</span>
+                <span className="card-label highlight-label">PROPOSED REWARD CONCEPT</span>
                 {questCollectedStops === questData.stops.length ? (
                   <>
                     <h3 className="dynamic-value highlight-value">{questData.reward.title}</h3>
-                    <p className="context-text highlight-text">{questData.reward.description}</p>
+                    <p className="context-text highlight-text">{questData.reward.description} Offers are illustrative; no partner benefit is currently connected.</p>
                     <span className="reward-unlocked-badge">QUEST COMPLETE · REWARD UNLOCKED</span>
                   </>
                 ) : (
@@ -1943,7 +1973,7 @@ function App() {
         <nav className="feature-nav">
           <button className="back-btn" onClick={closeForecast}>← Return to Chapters</button>
           <h1 className="nav-title">TIRTH-YATRA FORECAST</h1>
-          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />LIVE AI PREDICTIVE MODELING</span>
+          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />AI-ASSISTED ESTIMATE · NOT LIVE SENSOR DATA</span>
         </nav>
         <main className="dashboard-layout ai-dashboard-layout">
           <div className="search-panel ai-search-panel">
@@ -1959,10 +1989,10 @@ function App() {
           {forecastData && (
             <div className="telemetry-grid dashboard-output-grid" aria-live="polite">
               <article className="telemetry-card">
-                <span className="card-label">CURRENT DENSITY MODEL · {forecastData.provider === 'gemini' ? 'GEMINI AI' : forecastData.provider === 'groq' ? 'GROQ AI' : 'SCRIPTED FALLBACK'}</span>
+                <span className="card-label">TYPICAL CROWD ESTIMATE · {forecastData.provider === 'gemini' ? 'GEMINI AI' : forecastData.provider === 'groq' ? 'GROQ AI' : 'UNAVAILABLE'}</span>
                 <h3 className="dynamic-value density-value" style={{ color: forecastData.densityPercentage > 80 ? '#ff4d4d' : forecastData.densityPercentage > 50 ? '#ffcc00' : '#4bb543' }}>{forecastData.densityStatus}</h3>
                 <div className="progress-track"><div className="progress-fill" style={{ width: `${forecastData.densityPercentage}%`, background: forecastData.densityPercentage > 80 ? '#ff4d4d' : forecastData.densityPercentage > 50 ? '#ffcc00' : '#4bb543' }} /></div>
-                <span className="density-percent">{forecastData.densityPercentage}% estimated occupancy</span>
+                <span className="density-percent">{forecastData.densityPercentage}% estimated crowd level</span>
               </article>
               <article className="telemetry-card">
                 <span className="card-label">PEAK CONGESTION WINDOW</span>
@@ -1970,7 +2000,7 @@ function App() {
                 <p className="context-text">{forecastData.peakReason}</p>
               </article>
               <article className="telemetry-card optimal-card">
-                <span className="card-label highlight-label">AI OPTIMAL VISIT WINDOW</span>
+                <span className="card-label highlight-label">SUGGESTED VISIT WINDOW</span>
                 <h3 className="dynamic-value highlight-value">{forecastData.optimalWindow}</h3>
                 <p className="context-text highlight-text">{forecastData.optimalReason}</p>
               </article>
@@ -1983,7 +2013,7 @@ function App() {
         <nav className="feature-nav">
           <button className="back-btn" onClick={closeCraftArchive}>← Return to Chapters</button>
           <h1 className="nav-title">KALA-BAZAAR</h1>
-          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />LIVE CRAFT &amp; GI SCANNER</span>
+          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />AI CRAFT &amp; GI GUIDE</span>
         </nav>
         <main className="dashboard-layout ai-dashboard-layout">
           <div className="search-panel ai-search-panel">
@@ -1999,7 +2029,7 @@ function App() {
           {craftData && (
             <div className="craft-telemetry-container dashboard-output-panel" aria-live="polite">
               <div className="telemetry-header">
-                <div><span className="chapters-subtitle">REGION MAPPED · {craftData.provider === 'gemini' ? 'GEMINI' : craftData.provider === 'groq' ? 'GROQ' : 'SCRIPTED FALLBACK'}</span><h3 className="dashboard-output-title">{craftData.regionFormatted}</h3></div>
+                <div><span className="chapters-subtitle">REGION GUIDE · {craftData.provider === 'gemini' ? 'GEMINI' : craftData.provider === 'groq' ? 'GROQ' : 'UNAVAILABLE'}</span><h3 className="dashboard-output-title">{craftData.regionFormatted}</h3></div>
                 <span className="status-pill status-pill-green">{craftData.giStatus}</span>
               </div>
               <div className="telemetry-grid dashboard-output-grid craft-output-grid">
@@ -2015,7 +2045,7 @@ function App() {
         <nav className="feature-nav">
           <button className="back-btn" onClick={closeFestivalCalendar}>← Return to Chapters</button>
           <h1 className="nav-title">PARV-DARSHAN</h1>
-          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />LIVE CULTURAL CALENDAR</span>
+          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />AI FESTIVAL &amp; ETIQUETTE GUIDE</span>
         </nav>
         <main className="dashboard-layout ai-dashboard-layout">
           <div className="search-panel ai-search-panel">
@@ -2031,7 +2061,7 @@ function App() {
           {festivalData && (
             <div className="festival-telemetry-container dashboard-output-panel" aria-live="polite">
               <div className="telemetry-header">
-                <div><span className="chapters-subtitle">CULTURAL CALENDAR · {festivalData.provider === 'gemini' ? 'GEMINI' : festivalData.provider === 'groq' ? 'GROQ' : 'SCRIPTED FALLBACK'}</span><h3 className="dashboard-output-title">{festivalData.festivalName}</h3></div>
+                <div><span className="chapters-subtitle">CULTURAL GUIDE · {festivalData.provider === 'gemini' ? 'GEMINI' : festivalData.provider === 'groq' ? 'GROQ' : 'UNAVAILABLE'}</span><h3 className="dashboard-output-title">{festivalData.festivalName}</h3></div>
                 <span className="status-pill status-pill-orange">{festivalData.regionFormatted}</span>
               </div>
               <div className="telemetry-grid dashboard-output-grid festival-output-grid">
@@ -2047,7 +2077,7 @@ function App() {
         <nav className="feature-nav">
           <button className="back-btn" onClick={closeTryOn}>← Return to Chapters</button>
           <h1 className="nav-title">KALA-KRITI · DIGITAL TRY-ON</h1>
-          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />LIVE HERITAGE STYLIST</span>
+          <span className="nav-status dashboard-nav-status"><span className="connection-dot" />AI HERITAGE STYLIST</span>
         </nav>
         <main className="dashboard-layout ai-dashboard-layout ch8-dashboard-layout">
           <div className="search-panel ai-search-panel">
@@ -2066,7 +2096,7 @@ function App() {
               </label>
               <input className="ch8-garment-input" value={tryOnGarment} onChange={(event) => setTryOnGarment(event.target.value)} placeholder="E.g., Rajputana Sherwani, Banarasi Saree…" aria-label="Requested regional attire" />
               <button className="ch8-analyze-btn" type="submit" disabled={isTryOnLoading || !tryOnImage || !tryOnGarment.trim()}>{isTryOnLoading ? 'Synthesizing Fit…' : 'Synthesize Fit ↗'}</button>
-              <small className="ch8-privacy-note">Your portrait is sent to the image service only when you choose Generate Heritage Visual.</small>
+              <small className="ch8-privacy-note">Submitting this report sends your portrait to the AI vision provider. The image generator receives it only after you choose Generate Heritage Visual.</small>
               {tryOnError && <p className="dashboard-error" role="alert">{tryOnError}</p>}
             </form>
 

@@ -9,21 +9,12 @@ This repository is structured as a monorepo containing:
 - **`Virasat/`**: Backend REST API built with **FastAPI**, **Supabase** (authentication, PostgreSQL, and storage), and **AI integrations** (Gemini & Groq).
 
 ```
-Virasat/
-├── vercel.json                 # Vercel deployment configuration for root monorepo
-├── package.json                # Root workspace configuration with npm scripts
-├── VirasatX/                   # Frontend Vite + React SPA
-│   ├── vercel.json             # Vercel SPA routing rules for frontend
-│   ├── package.json            # React + Vite dependencies
-│   ├── vite.config.ts          # Vite configuration with local API proxy
-│   └── src/                    # Components, state, Three.js 3D viewer, Leaflet map
-└── Virasat/                    # Backend FastAPI API
-    ├── vercel.json             # Vercel Serverless Function configuration
-    ├── index.py                # Serverless entrypoint exporting FastAPI app
-    ├── requirements.txt        # Python backend dependencies
-    └── backend/
-        ├── main.py             # FastAPI routes (Auth, Quests, 3D, AI, Yatra)
-        └── supabase_schema.sql # Database schema
+api/index.py                    # Shared Vercel API entrypoint
+VirasatX/                       # Frontend Vite + React SPA
+Virasat/backend/main.py         # FastAPI routes and AI integrations
+Virasat/backend/supabase_schema.sql
+requirements.txt                # Python dependencies for Vercel
+vercel.json                     # Single-project frontend and API deployment
 ```
 
 ---
@@ -32,8 +23,8 @@ Virasat/
 
 ### 1. Frontend Setup
 ```bash
-# From the root directory:
-npm install
+# From the repository root:
+npm install --prefix VirasatX
 npm run dev
 ```
 Or directly within `VirasatX`:
@@ -66,41 +57,11 @@ Backend API interactive docs will be available at `http://127.0.0.1:8000/docs`.
 
 ## Vercel Deployment
 
-This repository is optimized for seamless Vercel deployment:
+Deploy this repository as one Vercel project with the **Root Directory** set to `./`. The build publishes the Vite app and a Python FastAPI function under `/api/*`, so leave `VITE_BACKEND_API_URL` empty to use the same domain. Set these server-side Vercel environment variables for AI and saved passport stamps:
 
-### Option A: Standard Single-Project Frontend Deployment (Recommended)
-1. Import `https://github.com/thusharks1234-byte/Virasat_GOAT.git` into Vercel.
-2. Leave the **Root Directory** as default (`./`).
-3. Vercel automatically detects `vercel.json`, installs dependencies, builds the Vite production bundle, and serves the application with full client-side SPA routing.
-4. Set the environment variable `VITE_BACKEND_API_URL` to point to your deployed backend API URL (if connecting to the live API).
+- `GEMINI_API_KEY` and/or `GROQ_API_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY` (or `SUPABASE_ANON_KEY`)
+- `SUPABASE_SECRET_KEY` (or `SUPABASE_KEY`) for server-side database access
 
-### Option B: Two-Project Full Stack Deployment (Frontend + FastAPI Backend)
-
-#### 1. Website Project (Frontend)
-- **Root Directory**: `VirasatX` (or `./`)
-- **Framework Preset**: Vite
-- **Build Command**: `npm run build`
-- **Output Directory**: `dist`
-- **Environment Variables**:
-  - `VITE_BACKEND_API_URL`: URL of the deployed API project (e.g. `https://virasat-api.vercel.app`)
-  - `VITE_SUPABASE_URL`: (Optional) Your Supabase project URL for direct client auth
-  - `VITE_SUPABASE_PUBLISHABLE_KEY`: (Optional) Your Supabase anon/publishable key
-
-#### 2. API Project (Backend)
-- **Root Directory**: `Virasat`
-- **Framework Preset**: Other
-- Vercel automatically detects `index.py` and installs `requirements.txt`.
-- **Environment Variables**:
-  - `SUPABASE_URL`: Your Supabase URL
-  - `SUPABASE_SECRET_KEY`: Supabase service role key (or `SUPABASE_KEY`)
-  - `SUPABASE_PUBLISHABLE_KEY`: Supabase anon key (or `SUPABASE_ANON_KEY`)
-  - `GEMINI_API_KEY`: Google Gemini API key
-  - `GROQ_API_KEY`: Groq API key
-  - `FRONTEND_ORIGINS`: Comma-separated list of allowed origins (e.g. `https://virasat.vercel.app`)
-
----
-
-## Production Checks
-- **TypeScript**: Passes with zero type errors (`tsc -b`)
-- **Linter**: Passes with zero errors/warnings (`oxlint`)
-- **Vite Build**: Generates optimized production assets in `dist/`
+For a separate backend deployment, set `VITE_BACKEND_API_URL` to its origin and configure `FRONTEND_ORIGINS` on the backend. Never put provider or Supabase secret keys in a `VITE_*` variable.
