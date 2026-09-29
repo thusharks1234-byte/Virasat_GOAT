@@ -277,6 +277,7 @@ function App() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [authFeedback, setAuthFeedback] = useState<{ text: string; type: 'info' | 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [userStats, setUserStats] = useState<{ stamps: number; quests: number } | null>(null);
 
   useEffect(() => {
     // Supabase Auth owns session persistence; don't trust the old hand-written cache.
@@ -321,6 +322,26 @@ function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Fetch real user stats (stamps + quests) from the backend API
+  const fetchUserStats = async (userId: string) => {
+    if (!userId || !BACKEND_API_URL && !window.location.hostname) return;
+    try {
+      const [stampsRes, questsRes] = await Promise.all([
+        fetch(`${BACKEND_API_URL}/api/yatra/stamps/${encodeURIComponent(userId)}`),
+        fetch(`${BACKEND_API_URL}/api/quests/${encodeURIComponent(userId)}`),
+      ]);
+      const stampsData = stampsRes.ok ? await stampsRes.json().catch(() => ({})) : {};
+      const questsData = questsRes.ok ? await questsRes.json().catch(() => ({})) : {};
+      setUserStats({
+        stamps: Array.isArray(stampsData.stamps) ? stampsData.stamps.length : 0,
+        quests: Array.isArray(questsData.quests) ? questsData.quests.filter((q: { is_finished?: boolean }) => q.is_finished).length : 0,
+      });
+    } catch {
+      // Non-critical: silently fall back to zeros
+      setUserStats({ stamps: 0, quests: 0 });
+    }
+  };
 
   // Feature Access Guard: only allow logged in users to access features, else redirect to sign in
   const handleFeatureAccess = (callback: () => void) => {
@@ -809,12 +830,15 @@ function App() {
       if (error) throw error;
       if (!data.user || !data.session) throw new Error('Supabase did not return an active session. Confirm your email, then sign in.');
 
-      setCurrentUser({
+      const loggedInUser = {
         id: data.user.id,
         email: data.user.email || cleanEmail,
         full_name: data.user.user_metadata?.full_name || cleanEmail.split('@')[0],
         role: data.user.user_metadata?.role || 'explorer',
-      });
+      };
+      setCurrentUser(loggedInUser);
+      setUserStats(null);
+      void fetchUserStats(data.user.id);
       setAuthFeedback({ text: `✓ Welcome back, ${data.user.user_metadata?.full_name || cleanEmail.split('@')[0]}!`, type: 'success' });
       setAuthPassword('');
       setTimeout(() => {
@@ -858,12 +882,15 @@ function App() {
 
       setAuthPassword('');
       if (data.session) {
-        setCurrentUser({
+        const newUser = {
           id: data.user.id,
           email: data.user.email || cleanEmail,
           full_name: data.user.user_metadata?.full_name || name,
           role: data.user.user_metadata?.role || 'explorer',
-        });
+        };
+        setCurrentUser(newUser);
+        setUserStats({ stamps: 0, quests: 0 });
+        void fetchUserStats(data.user.id);
         setAuthFeedback({ text: '✓ Account created successfully! Welcome to Virasat.', type: 'success' });
         setTimeout(() => {
           setIsAuthOpen(false);
@@ -889,6 +916,7 @@ function App() {
       return;
     }
     setCurrentUser(null);
+    setUserStats(null);
     setIsChaptersOpen(false);
     setIsArchiveOpen(false);
     setIsKathakarOpen(false);
@@ -923,10 +951,14 @@ function App() {
     if (!isAuthOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // Refresh backend stats whenever the auth modal is opened with a logged-in user
+    if (currentUser?.id) {
+      void fetchUserStats(currentUser.id);
+    }
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isAuthOpen]);
+  }, [isAuthOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Parallax Scroll Animation Setup
   useEffect(() => {
@@ -1657,11 +1689,11 @@ function App() {
 
                   <div className="profile-stats">
                     <div className="stat-box">
-                      <span className="stat-value">0</span>
+                      <span className="stat-value">{userStats === null ? '…' : userStats.stamps}</span>
                       <span className="stat-label">Yatra Stamps</span>
                     </div>
                     <div className="stat-box">
-                      <span className="stat-value">0</span>
+                      <span className="stat-value">{userStats === null ? '…' : userStats.quests}</span>
                       <span className="stat-label">Lore Quests</span>
                     </div>
                   </div>
