@@ -16,4 +16,28 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'three-vendor',
+              test: /node_modules[\\/]three(?:[\\/]|$)/,
+              minSize: 20_000,
+              maxSize: 250_000,
+              priority: 20,
+            },
+            {
+              name: 'vendor',
+              test: /node_modules[\\/]/,
+              minSize: 20_000,
+              maxSize: 250_000,
+              priority: 10,
+            },
+          ],
+        },
+      },
+    },
+  },
 })
